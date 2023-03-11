@@ -26,10 +26,13 @@ const completer = (line: string) => {
 
 /**
  *
- * A chatGPT "co-pilot"
+ * @class Gish
+ * @description Gish is a command line interface for GPT-3. There are two modes
+ * 1. Interactive mode: This is the default mode. It allows you to chat with GPT-3
+ * 2. Command line mode: This mode allows you to send a request to GPT-3 and get a response
  */
 
-class ChatSession {
+class Gish {
   homeDir: string = "";
   rl: any;
   histPath: string = "";
@@ -109,14 +112,14 @@ class ChatSession {
     process.exit(0);
   }
 
-  question() {
+  async question() {
     // Initial prompt
     this.rl.prompt();
 
-    this.rl.on("line", (line: string) => {
+    this.rl.on("line", async (line: string) => {
       // Every time we get a response
       this.rl.history.push(line);
-      this.handlCommand(line);
+      await this.handlCommand(line);
       this.rl.prompt();
     });
   }
@@ -136,12 +139,10 @@ class ChatSession {
       const inputFile = args[1];
       request = fs.readFileSync(inputFile, "utf8");
     } else {
-      // ask {
+      // ask
       args.shift();
       request = args.join(" ");
     }
-
-    log(`sending:\n${request}`);
 
     const [success, text, oldFiles] = importFiles(request);
     if (!success) {
@@ -150,38 +151,36 @@ class ChatSession {
     }
 
     const response = await this.fetch(request);
-    log(chalk.green(oldFiles));
-    const newFiles = saveFiles(response, oldFiles);
-    if (args.length > 3) {
-      const diffCommand = settings.DIFF_COMMAND;
-      log("running diff on:", newFiles[0][0], newFiles[0][1]);
+    if (type == "input") {
+      log(chalk.green(oldFiles));
+      const newFiles = saveFiles(response, oldFiles);
+      console.log(newFiles);
+      if (args.length > 3) {
+        const diffCommand = settings.DIFF_COMMAND;
+        log("running diff on:", newFiles[0][0], newFiles[0][1]);
 
-      // Run the diff command
-      exec(
-        `${diffCommand} ${newFiles[0].join(" ")}`,
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`);
-            return;
+        // Run the diff command
+        exec(
+          `${diffCommand} ${newFiles[0].join(" ")}`,
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`);
+              return;
+            }
           }
-        }
-      );
+        );
+      }
     }
   }
 
   async fetch(request: string) {
-    const response = await gpt.fetch(request);
-    log(chalk.green(response));
+    const gptResult = await gpt.fetch(request);
+    const tokens = gptResult.usage.total_tokens;
+    let response = gptResult.choices[0].message["content"];
 
     const currentTimestamp = new Date().toLocaleString();
-    /*
-    const separator = `\n\n==================================== ${currentTimestamp} ====================================\n`;
-    const delim = "\n---------Response------------------";
-    const output = separator + request + delim + response + "\n";
-    fs.appendFileSync(settings.LOG_FILE, output);
-    const output = separator + request + delim + response + "\n";
-    */
     response = response.trim();
+    log(chalk.green(response));
     const jsonLog = {
       request: request,
       response: response,
@@ -192,7 +191,7 @@ class ChatSession {
     return response;
   }
 
-  handlCommand(line: string) {
+  async handlCommand(line: string) {
     const args: string[] = line.toLowerCase().split(" ");
     if (args[0] == "") {
       return;
@@ -205,10 +204,10 @@ class ChatSession {
         this.showHelp();
         break;
       case "ask":
-        this.submitChat("ask", args);
+        await this.submitChat("ask", args);
         break;
       case "input":
-        this.submitChat("input", args);
+        await this.submitChat("input", args);
         break;
       default:
         this.error(chalk.red(`Unknown command: '${command}'`));
@@ -227,5 +226,5 @@ class ChatSession {
   }
 }
 
-const chatSession = new ChatSession();
-chatSession.init();
+const gish = new Gish();
+gish.init();
