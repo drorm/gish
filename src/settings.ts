@@ -8,4 +8,6 @@ export class settings {
   // Directory where we put files with chatgpt response
   public static GEN_DIR = "gen";
   public static LOG_FILE = "gish.json";
+  public static TOKEN_COST = 0.002 / 1000; // per https://openai.com/pricing
+  public static DEFAULT_EDITOR = "vim";
 }
