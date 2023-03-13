@@ -6,5 +6,4 @@ source ~/.openai
 REAL_PATH=`realpath "$0"`
 # Get the directory that this script is in
 BASE_DIR=`dirname "$REAL_PATH"`
-cd $BASE_DIR
-node dist/index.js $*
+node ${BASE_DIR}/dist/index.js $*
