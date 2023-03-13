@@ -3,8 +3,6 @@ import * as fs from "fs";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const fname = "prompts/empty";
-const background = fs.readFileSync(fname, "utf-8");
 
 /**
  * The LLM, Long Language Model, class is the main class for the handling the requests to the OpenAI API.
@@ -22,7 +20,7 @@ export class LLM {
    * @example const result = await fetch('What is the population of the city of London?');
    */
   async fetch(query: string) {
-    const fullRequest = background + query;
+    const fullRequest = query;
     try {
       const completion = await this.openai.createChatCompletion({
         model: "gpt-3.5-turbo",
@@ -39,16 +37,8 @@ export class LLM {
        * }
        */
 
-      const response = completion.data.choices[0].message["content"];
-      /**
-       * We need to do some validation of the response in here.
-       * We've asked the model to provide a JSON string that contains the SQL.
-       * If the response is not valid JSON, we need to return an error.
-       */
-      /*
-      const parsed = JSON.parse(response);
-      console.log('response', response);
-      */
+      const response = completion.data;
+      // console.log(JSON.stringify(response, null, 2));
 
       return response;
     } catch (error) {
