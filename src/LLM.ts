@@ -41,13 +41,14 @@ export class LLM {
       // console.log(JSON.stringify(response, null, 2));
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       if (error.response) {
         console.log(error.response.status);
         console.log(error.response.data);
       } else {
         console.log(error.message);
       }
+      return error;
     }
   }
 }

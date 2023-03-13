@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { settings } from "./settings";
+import { settings } from "./settings.js";
 import * as path from "path";
 
 export function saveFiles(output: string, files: string[]): string[][] {

@@ -2,16 +2,16 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as process from "process";
-import * as chalk from "chalk";
+import chalk from "chalk";
 import * as readline from "node:readline/promises";
 import { exec } from "child_process";
 import { spawn } from "child_process";
 
-import { LLM } from "./LLM";
-import { settings } from "./settings";
-import { importFiles } from "./importFiles";
-import { saveFiles } from "./saveFiles";
-const { program } = require("commander");
+import { LLM } from "./LLM.js";
+import { settings } from "./settings.js";
+import { importFiles } from "./importFiles.js";
+import { saveFiles } from "./saveFiles.js";
+import { program } from "commander";
 
 const gpt = new LLM();
 
@@ -79,15 +79,15 @@ class Gish {
    * @param args - the arguments passed to the command line
    * @param options - the options passed to the command line
    */
-  async cli(args: string[], options) {
+  async cli(args: string[], options: any) {
     let request;
-    if (options.input) {
-      const filePath = path.join(process.env.PWD, options.input);
+    if (options["input"]) {
+      const filePath = path.join(<string>process.env.PWD, options["input"]);
       // we got an input file
       args.push("input"); // to be consistent with the interactive mode that can also use an input file
       args.push(filePath);
       await this.submitChat("input", args);
-    } else if (options.edit) {
+    } else if (options["edit"]) {
       this.edit(options, args);
     } else {
       // convert the words to a string
@@ -108,7 +108,7 @@ class Gish {
    * @param args - the arguments passed to the command line
    * @returns {Promise<void>}
    */
-  async edit(options, args) {
+  async edit(options: any, args: string[]) {
     let filePath;
     if (options.edit === true) {
       // we'll need to generate a file name
@@ -117,7 +117,7 @@ class Gish {
       filePath = `${tmpPath}/${tmpFilename}`;
     } else {
       // we got a file name, just edit it
-      filePath = path.join(process.env.PWD, options.edit);
+      filePath = path.join(<string>process.env.PWD, options.edit);
     }
     // we got a file name
     // launch an editor on the file. Let's see if we can get the editor from the environment
@@ -141,7 +141,7 @@ class Gish {
    * @param editor - the editor to run
    * @param filePath - the file to edit
    */
-  async runEditor(editor, filePath) {
+  async runEditor(editor: string, filePath: string) {
     return new Promise((resolve) => {
       const editProcess = spawn(editor, [filePath], { stdio: "inherit" });
       editProcess.on("exit", async (code) => {
