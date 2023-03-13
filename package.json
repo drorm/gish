@@ -2,12 +2,13 @@
   "name": "node-gpp",
   "version": "0.1.0",
   "main": "index.ts",
+  "exports": "./dist/index.js",
+  "type": "module",
   "license": "MIT",
   "scripts": {
     "start": "node_modules/.bin/ts-node src/index.ts",
     "nodemon": "./node_modules/.bin/nodemon src/index.ts",
-    "dev-old": "./node_modules/.bin/tsc-watch index.ts importFiles.ts --onsuccess 'node src/index.js'",
-    "dev": "tsc-watch src/*.ts --outDir ./dist --onSuccess 'node ./dist/index.js'",
+    "dev": "tsc-watch -p ./tsconfig.json --outDir ./dist --onSuccess 'node ./dist/index.js'",
     "prd": "pm2 start index.ts"
   },
   "devDependencies": {
