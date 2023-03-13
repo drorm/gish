@@ -18,14 +18,13 @@ gish is a shell to interact with openai GPT. **You need a paid account and a key
 
 ## Installation
 
-1.  Clone this repository
-2.  TODO: Install dependencies using `pip install -r requirements.txt`
+1. Clone this repository
+2. make sure you have a .openai file in your home directory
 
 ## Usage
 
-1.  Run `main.py`
-2.  Log in to your ChatGPT account
-3.  Return to the terminal and hit `enter` to begin sending commands
+2. run gish.sh.
+3. Optionally, create a symbolic link to gish.sh somewhere in your path. Alternatively, create an alias.
 
 ### Basic Operation
 
