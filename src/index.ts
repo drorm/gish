@@ -6,6 +6,7 @@ import chalk from "chalk";
 import * as readline from "node:readline/promises";
 import { exec } from "child_process";
 import { spawn } from "child_process";
+import ora from "ora"; // spinner
 
 import { LLM } from "./LLM.js";
 import { settings } from "./settings.js";
@@ -277,11 +278,13 @@ class Gish {
   }
 
   async fetch(request: string) {
+    const spinner = ora("Waiting for GPT").start();
     const start = new Date().getTime();
     const gptResult = await gpt.fetch(request);
     const tokens = gptResult.usage.total_tokens;
     const cost = (tokens * settings.TOKEN_COST).toFixed(5);
     let response = gptResult.choices[0].message["content"];
+    spinner.stop();
 
     const currentTimestamp = new Date().toLocaleString();
     response = response.trim();
