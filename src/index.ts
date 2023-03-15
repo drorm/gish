@@ -15,7 +15,6 @@ import { saveFiles } from "./saveFiles.js";
 import { program } from "commander";
 
 const gpt = new LLM();
-
 const log = console.log;
 
 // used by the interactive mode
@@ -83,7 +82,7 @@ class Gish {
   async cli(args: string[], options: any) {
     let request;
     if (options["input"]) {
-      const filePath = path.join(<string>process.env.PWD, options["input"]);
+      const filePath = path.normalize(options["input"]);
       // we got an input file
       args.push("input"); // to be consistent with the interactive mode that can also use an input file
       args.push(filePath);
@@ -118,7 +117,7 @@ class Gish {
       filePath = `${tmpPath}/${tmpFilename}`;
     } else {
       // we got a file name, just edit it
-      filePath = path.join(<string>process.env.PWD, options.edit);
+      filePath = path.normalize(options.edit);
     }
     // we got a file name
     // launch an editor on the file. Let's see if we can get the editor from the environment
@@ -255,7 +254,7 @@ class Gish {
       return;
     }
 
-    const response = await this.fetch(request);
+    const response = await this.fetch(text);
     if (type == "input") {
       log(chalk.green(oldFiles));
       const newFiles = saveFiles(response, oldFiles);
