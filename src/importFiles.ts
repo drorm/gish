@@ -43,7 +43,7 @@ export function importFiles(content: string): [boolean, string, string[]] {
         modifiedLines.push(...fileContents.split("\n"));
       } catch (e) {
         // If the file can't be opened
-        return [false, `File ${fname} was not found\n`, toChangeFiles];
+        return [false, `#import file ${fname} was not found`, toChangeFiles];
       }
     } else {
       // If the line is not an #import or # change statement, add it to the modified lines list as is
