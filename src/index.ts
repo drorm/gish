@@ -120,7 +120,7 @@ class Gish {
     if (options.edit === true) {
       // we'll need to generate a file name
       const tmpPath = os.tmpdir();
-      const tmpFilename = `mytmpfile-${new Date().getTime()}.txt`;
+      const tmpFilename = `gish-${new Date().getTime()}.txt`;
       filePath = `${tmpPath}/${tmpFilename}`;
     } else {
       // we got a file name, just edit it
