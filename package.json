@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node_modules/.bin/ts-node src/index.ts",
     "nodemon": "./node_modules/.bin/nodemon src/index.ts",
-    "dev": "tsc-watch -p ./tsconfig.json --outDir ./dist --onSuccess 'node ./dist/index.js'",
+    "dev": "tsc-watch -p ./tsconfig.json --outDir ./dist --onSuccess './dist/index.js'",
     "prd": "pm2 start index.ts"
   },
   "devDependencies": {
