@@ -57,16 +57,25 @@ class Gish {
     // gish "What is the population of the city of London?" is an argument.
     const options = program.opts();
     const args = program.args;
-    // check to see if there are any options
-    if (Object.keys(args).length === 0 && !(options.input || options.edit)) {
+
+    const piped = this.pipedInput();
+
+    // check to see if there are any options or data
+    if (Object.keys(args).length === 0 && !(options.input || options.edit || piped.length > 0)) {
       this.isInteractive = true;
     }
 
-    // convert the options to an array of objects
+    // priority, similar to linux commands like cat and echo:
+    // 1. command line args: gish "What is the population of the city of London?"
+    // 2. piped input: echo "What is the population of the city of London?" | gish
+    // 3. interactive mode: gish
+    // Which means that if it gets both args and piped input, it will ignore the piped input
     if (this.isInteractive) {
       await this.interactive();
-    } else {
+    } else if (args.length > 0) {
       this.cli(args, options);
+    } else {
+      await this.cli(piped, options);
     }
   }
 
@@ -268,6 +277,23 @@ class Gish {
     } catch (e) {
       log(e);
       this.exit();
+    }
+  }
+
+  pipedInput() {
+    // check to see if there is any piped input
+    try {
+    const data = fs.readFileSync(0, 'utf-8'); // read input from stdin (file descriptor 0)
+    if(data) {
+      this.isInteractive = false;
+      // split by words
+      const piped = data.split(/\s+/);
+      return(piped);
+    } else {
+      return([]);
+    }
+    } catch (e) {
+      return([]);
     }
   }
 }
