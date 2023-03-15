@@ -57,25 +57,3 @@ export function saveFiles(output: string, files: string[]): string[][] {
   }
   return fileList;
 }
-
-/*
-const string1 = `
-    Sure, here is how you can make the hello world program into a function and add a main that calls the function:
-
-    Copy code
-    def hello_world():
-        print('Hello World')
-    Copy code
-  `;
-const string2 = `Certainly! Here is the requested code:
-
-Copy code
-  def hello_world():
-      print('Hello World')
-
-  def main():
-      hello_world()
-  In this code, we first define the hello_world function, which simply prints the string 'Hello World'. Then, we define the main function, which calls the hello_world function. Finally, we have an if statement that checks if the script is being run directly (as opposed to being imported by another script). If the script is being run directly, then __name__ will be set to '__main__', and the main function will be called. This is a common pattern in Python programs to allow for both direct execution and importation of the script as a module.
-  `;
-saveFiles(string1, ["hello.ts"]);
-*/
