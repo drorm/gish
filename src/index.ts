@@ -5,17 +5,13 @@ import * as path from "path";
 import * as process from "process";
 import chalk from "chalk";
 import * as readline from "node:readline/promises";
-import { exec } from "child_process";
 import { spawn } from "child_process";
-import ora from "ora"; // spinner
 
-import { LLM } from "./LLM.js";
 import { settings } from "./settings.js";
-import { importFiles } from "./importFiles.js";
-import { saveFiles } from "./saveFiles.js";
+import { GptRequest } from "./gptRequest.js";
 import { program } from "commander";
 
-const gpt = new LLM();
+const gptRequest = new GptRequest();
 const log = console.log;
 
 // used by the interactive mode
@@ -77,8 +73,8 @@ class Gish {
   /**
    * @method cli
    * @description This method is used to send a request to GPT-3 from the command line
-   * @param args - the arguments passed to the command line
-   * @param options - the options passed to the command line
+   * @param args - the arguments, the actual request, passed to the command line
+   * @param options - the options, flags, passed to the command line
    */
   async cli(args: string[], options: any) {
     let request;
@@ -87,14 +83,15 @@ class Gish {
       // we got an input file
       args.push("input"); // to be consistent with the interactive mode that can also use an input file
       args.push(filePath);
-      await this.submitChat("input", args);
+      await gptRequest.submitChat("input", args);
     } else if (options["edit"]) {
       this.edit(options, args);
     } else {
       // convert the words to a string
       request = args.join(" ");
       if (request) {
-        const response = await this.fetch(request);
+        args.push(request);
+        await gptRequest.submitChat("ask", args);
       } else {
         this.error("Need request to send to GPT-3");
       }
@@ -104,7 +101,7 @@ class Gish {
   /**
    * @method edit
    * @description This method is used to edit a file and send it to GPT-3
-   * the file name can either be passed as an option or we can generate a file name
+   * the file name can either be passed as an option or we can generate a tmp file name
    * @param options - the options passed to the command line
    * @param args - the arguments passed to the command line
    * @returns {Promise<void>}
@@ -130,7 +127,7 @@ class Gish {
     if (result === "") {
       args.push("input"); // to be consistent with the interactive mode
       args.push(filePath);
-      await this.submitChat("input", args);
+      await gptRequest.submitChat("input", args);
     } else {
       console.log("Not sending: ", result);
     }
@@ -233,81 +230,6 @@ class Gish {
     log("Hit tab twice at the beginning of line to show the list of commands");
   }
 
-  async submitChat(type: string, args: string[]) {
-    let request = "";
-    // input file name
-    if (type == "input") {
-      if (args.length < 2) {
-        this.error("Need input file name in input command");
-        return;
-      }
-      const inputFile = args[1];
-      request = fs.readFileSync(inputFile, "utf8");
-    } else {
-      // ask
-      args.shift();
-      request = args.join(" ");
-    }
-
-    const [success, text, oldFiles] = importFiles(request);
-    if (!success) {
-      this.error(text);
-      return;
-    }
-
-    const response = await this.fetch(text);
-    if (type == "input") {
-      log(chalk.green(oldFiles));
-      const newFiles = saveFiles(response, oldFiles);
-      if (args.length > 3) {
-        const diffCommand = settings.DIFF_COMMAND;
-        log("running diff on:", newFiles[0][0], newFiles[0][1]);
-
-        // Run the diff command
-        exec(
-          `${diffCommand} ${newFiles[0].join(" ")}`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`);
-              return;
-            }
-          }
-        );
-      }
-    }
-  }
-
-  async fetch(request: string) {
-    const spinner = ora("Waiting for GPT").start();
-    const start = new Date().getTime();
-    const gptResult = await gpt.fetch(request);
-    const tokens = gptResult.usage.total_tokens;
-    const cost = (tokens * settings.TOKEN_COST).toFixed(5);
-    let response = gptResult.choices[0].message["content"];
-    spinner.stop();
-
-    const currentTimestamp = new Date().toLocaleString();
-    response = response.trim();
-    log(chalk.green(response));
-    const end = new Date().getTime();
-    const duration = (end - start) / 1000;
-    log(
-      chalk.blue(
-        `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`
-      )
-    );
-    const jsonLog = {
-      request: request,
-      response: response,
-      time: currentTimestamp,
-      tokens: tokens,
-      cost: cost,
-      duration: duration,
-    };
-    const jsonString = JSON.stringify(jsonLog, null, 2);
-    fs.appendFileSync(settings.LOG_FILE, `${jsonString},\n`);
-    return response;
-  }
 
   /**
    * @method handleCommand
@@ -328,10 +250,10 @@ class Gish {
         this.showHelp();
         break;
       case "ask":
-        await this.submitChat("ask", args);
+        await gptRequest.submitChat("ask", args);
         break;
       case "input":
-        await this.submitChat("input", args);
+        await gptRequest.submitChat("input", args);
         break;
       default:
         this.error(chalk.red(`Unknown command: '${command}'`));
