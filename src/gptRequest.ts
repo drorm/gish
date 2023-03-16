@@ -99,16 +99,17 @@ export class GptRequest {
       log(chalk.green(response));
     }
 
-    // Currently we can't get the tokens from the response when using stream
+    let stats = "";
     if (tokens > 0) {
-      log(
-        chalk.blue(
-          `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`
-        )
-      );
+      stats = `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`;
     } else {
-      log(chalk.blue(`Elapsed: ${duration} Seconds`));
+      stats = `Elapsed: ${duration} Seconds`;
     }
+    if (stream) {
+      // Currently we get an estimate when streaming
+      stats += ". Tokens and cost are estimates when streaming.";
+    }
+    log(chalk.blue(stats));
 
     const jsonLog = {
       request: request,
