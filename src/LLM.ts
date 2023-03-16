@@ -1,6 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 import * as fs from "fs";
 import chalk from "chalk";
+import { countTokens } from "gptoken";
 import { settings } from "./settings.js";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -57,6 +58,17 @@ export class LLM {
       ) {
         text = response.choices[0].message["content"];
       }
+      const textWithQuery = query + text;
+      const estimateTokens = countTokens(textWithQuery) + 5; // empirically determined
+      /*
+      console.log(
+        chalk.red(
+          `Tokens: ${tokens} Estimate: ${estimateTokens} ratio: ${
+            tokens / estimateTokens
+          }`
+        )
+      );
+      */
       return { text: text, tokens: tokens };
     } catch (error: any) {
       if (error.response) {
@@ -73,6 +85,7 @@ export class LLM {
     // return a promise with await that resolves to the response
     return new Promise(async (resolve, reject) => {
       // based on https://github.com/openai/openai-node/issues/18#issuecomment-1369996933
+      let first = true;
       try {
         let response = "";
         const res = await this.openai.createChatCompletion(
@@ -98,6 +111,9 @@ export class LLM {
               process.stdout.write(chalk.green("\n"));
               if (res.data.usage) {
                 tokens = res.data.usage.total_tokens;
+              } else {
+                const words = response.split(/\s+/).length;
+                tokens = Math.round(words * 1.3); // 1.3 is a conservative average token to word ratio
               }
               resolve({ text: response, tokens: tokens });
               return; // Stream finished
@@ -106,10 +122,15 @@ export class LLM {
               const parsed = JSON.parse(message);
               let text = parsed.choices[0].delta.content;
               if (text) {
-                // convert multiple newlines to a single newline
-                text = text.replace(/\n+/g, "\n");
-                process.stdout.write(chalk.green(text));
-                response += text;
+                if (first && text.match(/^\s*$/)) {
+                  // ignore the first empty line
+                  first = false;
+                } else {
+                  // convert multiple newlines to a single newline
+                  text = text.replace(/\n+/g, "\n");
+                  process.stdout.write(chalk.green(text));
+                  response += text;
+                }
               }
             } catch (error) {
               console.error(
