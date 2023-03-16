@@ -21,14 +21,14 @@ const log = console.log;
  */
 export class GptRequest {
   constructor() {}
-  
+
   /**
    * @method submitChat
    * @description This method is used to send a request to GPT-3
    * @param {string} type - This is the type of request. It can be "input" or "ask"
    * @param {string[]} args - This is an array of strings that contains the request
    */
-  async submitChat(type: string, args: string[]) {
+  async submitChat(type: string, args: string[], stream: boolean) {
     let request = "";
     // input file name
     if (type == "input") {
@@ -50,7 +50,7 @@ export class GptRequest {
       return;
     }
 
-    const response = await this.fetch(text);
+    const response = await this.fetch(text, stream);
     if (type == "input") {
       log(chalk.green(oldFiles));
       const newFiles = saveFiles(response, oldFiles);
@@ -79,25 +79,37 @@ export class GptRequest {
    * @param {string} request - This is the request that is sent to GPT-3
    * @returns {string} - This is the response from GPT-3
    */
-  async fetch(request: string) {
-    const spinner = ora("Waiting for GPT").start();
+  async fetch(request: string, stream: boolean) {
+    let spinner;
+    if (!stream) {
+      spinner = ora("Waiting for GPT").start();
+    }
     const start = new Date().getTime();
-    const gptResult = await gpt.fetch(request);
-    const tokens = gptResult.usage.total_tokens;
+    const gptResult = await gpt.fetch(request, stream);
+    const tokens = gptResult.tokens;
     const cost = (tokens * settings.TOKEN_COST).toFixed(5);
-    let response = gptResult.choices[0].message["content"];
-    spinner.stop();
-
+    let response = gptResult.text;
     const currentTimestamp = new Date().toLocaleString();
     response = response.trim();
-    log(chalk.green(response));
     const end = new Date().getTime();
     const duration = (end - start) / 1000;
-    log(
-      chalk.blue(
-        `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`
-      )
-    );
+
+    if (spinner) {
+      spinner.stop();
+      log(chalk.green(response));
+    }
+
+    // Currently we can't get the tokens from the response when using stream
+    if (tokens > 0) {
+      log(
+        chalk.blue(
+          `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`
+        )
+      );
+    } else {
+      log(chalk.blue(`Elapsed: ${duration} Seconds`));
+    }
+
     const jsonLog = {
       request: request,
       response: response,
