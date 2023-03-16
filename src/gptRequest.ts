@@ -20,6 +20,7 @@ const log = console.log;
  * 2. fetch: This method is used to fetch the response from GPT-3
  */
 export class GptRequest {
+  options: any = {};
   constructor() {}
 
   /**
@@ -27,8 +28,10 @@ export class GptRequest {
    * @description This method is used to send a request to GPT-3
    * @param {string} type - This is the type of request. It can be "input" or "ask"
    * @param {string[]} args - This is an array of strings that contains the request
+   * @param {object} options - This is an object that contains the options passed to the command line
    */
-  async submitChat(type: string, args: string[], stream: boolean) {
+  async submitChat(type: string, args: string[], options: any) {
+    this.options = options;
     let request = "";
     // input file name
     if (type == "input") {
@@ -50,7 +53,7 @@ export class GptRequest {
       return;
     }
 
-    const response = await this.fetch(text, stream);
+    const response = await this.fetch(text);
     if (type == "input") {
       log(chalk.green(oldFiles));
       const newFiles = saveFiles(response, oldFiles);
@@ -79,8 +82,9 @@ export class GptRequest {
    * @param {string} request - This is the request that is sent to GPT-3
    * @returns {string} - This is the response from GPT-3
    */
-  async fetch(request: string, stream: boolean) {
+  async fetch(request: string) {
     let spinner;
+    const stream = this.options.stream;
     if (!stream) {
       spinner = ora("Waiting for GPT").start();
     }
@@ -99,17 +103,19 @@ export class GptRequest {
       log(chalk.green(response));
     }
 
-    let stats = "";
-    if (tokens > 0) {
-      stats = `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`;
-    } else {
-      stats = `Elapsed: ${duration} Seconds`;
+    if (this.options.stats) {
+      let stats = "";
+      if (tokens > 0) {
+        stats = `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`;
+      } else {
+        stats = `Elapsed: ${duration} Seconds`;
+      }
+      if (stream) {
+        // Currently we get an estimate when streaming
+        stats += ". Tokens and cost are estimates when streaming.";
+      }
+      log(chalk.blue(stats));
     }
-    if (stream) {
-      // Currently we get an estimate when streaming
-      stats += ". Tokens and cost are estimates when streaming.";
-    }
-    log(chalk.blue(stats));
 
     const jsonLog = {
       request: request,

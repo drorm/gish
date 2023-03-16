@@ -48,11 +48,22 @@ class Gish {
    * If there are options, it starts the command line mode
    */
   async init() {
+    const extraHelp = `
+    priority, similar to linux commands like cat and echo:
+    1. command line args: gish "What is the population of the city of London?". Note the quotes. Without the quotes, the shell will try to interpret the question mark, and you'll get an error. 
+    2. piped input: echo "What is the population of the city of London?" | gish
+    3. interactive mode: gish. Similar to typing "python" or "node" at the command line.
+    `;
     program
-      .option("-e --edit [file]", "Edit a file and send it to GPT-3")
-      .option("-i --input <file>", "Fetch request from file")
-      .option("--no-stream", "don't stream the result")
-      .argument("[request]", "request to send to GPT-3"); // optional argument
+      .option("-e --edit [file]", "edit a file and send it to the bot")
+      .option("-i --input <file>", "send the request from the file")
+      .option(
+        "--no-stream",
+        "don't stream the result. Default is to stream, display results as they come in."
+      )
+      .option("--no-stats", "don't show stats. Default is to show stats.")
+      .argument("[request]", "request to send to the bot") // optional argument
+      .addHelpText("after", extraHelp);
     program.parse();
 
     // options are flags args are other arguments on the command line
@@ -308,7 +319,7 @@ class Gish {
   }
 
   async submitChat(type: string, args: string[]) {
-    await gptRequest.submitChat(type, args, this.options.stream);
+    await gptRequest.submitChat(type, args, this.options);
   }
 }
 
