@@ -36,6 +36,8 @@ class Gish {
   rl: any;
   histPath: string = "";
   isInteractive: boolean = false;
+  options: any = {};
+
   constructor() {}
 
   /**
@@ -49,19 +51,23 @@ class Gish {
     program
       .option("-e --edit [file]", "Edit a file and send it to GPT-3")
       .option("-i --input <file>", "Fetch request from file")
+      .option("--no-stream", "don't stream the result")
       .argument("[request]", "request to send to GPT-3"); // optional argument
     program.parse();
 
     // options are flags args are other arguments on the command line
     // So gish -i file.txt is a flag but
     // gish "What is the population of the city of London?" is an argument.
-    const options = program.opts();
+    this.options = program.opts();
     const args = program.args;
 
     const piped = this.pipedInput();
 
     // check to see if there are any options or data
-    if (Object.keys(args).length === 0 && !(options.input || options.edit || piped.length > 0)) {
+    if (
+      Object.keys(args).length === 0 &&
+      !(this.options.input || this.options.edit || piped.length > 0)
+    ) {
       this.isInteractive = true;
     }
 
@@ -73,9 +79,9 @@ class Gish {
     if (this.isInteractive) {
       await this.interactive();
     } else if (args.length > 0) {
-      this.cli(args, options);
+      this.cli(args);
     } else {
-      await this.cli(piped, options);
+      await this.cli(piped);
     }
   }
 
@@ -83,24 +89,23 @@ class Gish {
    * @method cli
    * @description This method is used to send a request to GPT-3 from the command line
    * @param args - the arguments, the actual request, passed to the command line
-   * @param options - the options, flags, passed to the command line
    */
-  async cli(args: string[], options: any) {
+  async cli(args: string[]) {
     let request;
-    if (options["input"]) {
-      const filePath = path.normalize(options["input"]);
+    if (this.options["input"]) {
+      const filePath = path.normalize(this.options["input"]);
       // we got an input file
       args.push("input"); // to be consistent with the interactive mode that can also use an input file
       args.push(filePath);
-      await gptRequest.submitChat("input", args);
-    } else if (options["edit"]) {
-      this.edit(options, args);
+      await this.submitChat("input", args);
+    } else if (this.options["edit"]) {
+      this.edit(args);
     } else {
       // convert the words to a string
       request = args.join(" ");
       if (request) {
         args.push(request);
-        await gptRequest.submitChat("ask", args);
+        await this.submitChat("ask", args);
       } else {
         this.error("Need request to send to GPT-3");
       }
@@ -111,20 +116,19 @@ class Gish {
    * @method edit
    * @description This method is used to edit a file and send it to GPT-3
    * the file name can either be passed as an option or we can generate a tmp file name
-   * @param options - the options passed to the command line
    * @param args - the arguments passed to the command line
    * @returns {Promise<void>}
    */
-  async edit(options: any, args: string[]) {
+  async edit(args: string[]) {
     let filePath;
-    if (options.edit === true) {
+    if (this.options.edit === true) {
       // we'll need to generate a file name
       const tmpPath = os.tmpdir();
       const tmpFilename = `gish-${new Date().getTime()}.txt`;
       filePath = `${tmpPath}/${tmpFilename}`;
     } else {
       // we got a file name, just edit it
-      filePath = path.normalize(options.edit);
+      filePath = path.normalize(this.options.edit);
     }
     // we got a file name
     // launch an editor on the file. Let's see if we can get the editor from the environment
@@ -136,7 +140,7 @@ class Gish {
     if (result === "") {
       args.push("input"); // to be consistent with the interactive mode
       args.push(filePath);
-      await gptRequest.submitChat("input", args);
+      await this.submitChat("input", args);
     } else {
       console.log("Not sending: ", result);
     }
@@ -239,7 +243,6 @@ class Gish {
     log("Hit tab twice at the beginning of line to show the list of commands");
   }
 
-
   /**
    * @method handleCommand
    * @description This method is used in interactive mode to handle the user input and call the
@@ -259,10 +262,10 @@ class Gish {
         this.showHelp();
         break;
       case "ask":
-        await gptRequest.submitChat("ask", args);
+        await this.submitChat("ask", args);
         break;
       case "input":
-        await gptRequest.submitChat("input", args);
+        await this.submitChat("input", args);
         break;
       default:
         this.error(chalk.red(`Unknown command: '${command}'`));
@@ -280,21 +283,32 @@ class Gish {
     }
   }
 
+  /**
+   * @method getPipedInput
+   * @description This method is used to get input from the piped input
+   * @returns an array of words
+   * @example
+   * echo "Hello world" | gptchat
+   */
   pipedInput() {
     // check to see if there is any piped input
     try {
-    const data = fs.readFileSync(0, 'utf-8'); // read input from stdin (file descriptor 0)
-    if(data) {
-      this.isInteractive = false;
-      // split by words
-      const piped = data.split(/\s+/);
-      return(piped);
-    } else {
-      return([]);
-    }
+      const data = fs.readFileSync(0, "utf-8"); // read input from stdin (file descriptor 0)
+      if (data) {
+        this.isInteractive = false;
+        // split by words
+        const piped = data.split(/\s+/);
+        return piped;
+      } else {
+        return [];
+      }
     } catch (e) {
-      return([]);
+      return [];
     }
+  }
+
+  async submitChat(type: string, args: string[]) {
+    await gptRequest.submitChat(type, args, this.options.stream);
   }
 }
 
