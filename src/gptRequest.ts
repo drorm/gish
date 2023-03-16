@@ -53,6 +53,11 @@ export class GptRequest {
       return;
     }
 
+    if (options["dryrun"]) {
+      log(chalk.green(request));
+      return;
+    }
+
     const response = await this.fetch(text);
     if (type == "input") {
       log(chalk.green(oldFiles));

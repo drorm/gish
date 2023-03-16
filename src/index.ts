@@ -58,6 +58,10 @@ class Gish {
       .option("-e --edit [file]", "edit a file and send it to the bot")
       .option("-i --input <file>", "send the request from the file")
       .option(
+        "--dryrun",
+        "don't send the request to the bot. Just show the request."
+      )
+      .option(
         "--no-stream",
         "don't stream the result. Default is to stream, display results as they come in."
       )
@@ -112,10 +116,9 @@ class Gish {
     } else if (this.options["edit"]) {
       this.edit(args);
     } else {
-      // convert the words to a string
-      request = args.join(" ");
-      if (request) {
-        args.push(request);
+      if (args.length > 0) {
+        // nees to insert "ask" in the args array
+        args.unshift("ask");
         await this.submitChat("ask", args);
       } else {
         this.error("Need request to send to GPT-3");
