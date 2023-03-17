@@ -3,6 +3,7 @@ import { importFiles } from "./importFiles.js";
 import { exec } from "child_process";
 import chalk from "chalk";
 import ora from "ora"; // spinner
+import { countTokens } from "gptoken";
 
 import { saveFiles } from "./saveFiles.js";
 import { settings } from "./settings.js";
@@ -52,9 +53,10 @@ export class GptRequest {
       this.error(text);
       return;
     }
-
     if (options["dryrun"]) {
-      log(chalk.green(request));
+      log(chalk.green(text));
+      const estimateTokens = countTokens(text);
+      log(chalk.blue(`Estimated request tokens: ${estimateTokens}`));
       return;
     }
 
