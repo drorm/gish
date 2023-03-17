@@ -6,22 +6,14 @@ import * as process from "process";
 import chalk from "chalk";
 import * as readline from "node:readline/promises";
 import { spawn } from "child_process";
+import { program } from "commander";
 
 import { settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
-import { program } from "commander";
+import { Interactive } from "./interactive.js";
 
 const gptRequest = new GptRequest();
 const log = console.log;
-
-// used by the interactive mode
-const pr: string = chalk.blue("> ");
-const completer = (line: string) => {
-  const completions = ["history", "help", "ask", "input"];
-  const hits = completions.filter((c) => c.startsWith(line));
-  // Show all completions if none found
-  return [hits.length ? hits : completions, line];
-};
 
 /**
  *
@@ -31,10 +23,8 @@ const completer = (line: string) => {
  * 2. Command line mode: This mode allows you to send a request to GPT-3 and get a response
  */
 
-class Gish {
+export class Gish {
   homeDir: string = "";
-  rl: any;
-  histPath: string = "";
   isInteractive: boolean = false;
   options: any = {};
 
@@ -92,7 +82,8 @@ class Gish {
     // 3. interactive mode: gish
     // Which means that if it gets both args and piped input, it will ignore the piped input
     if (this.isInteractive) {
-      await this.interactive();
+      const interactive = new Interactive();
+      await interactive.run(this.options, gptRequest);
     } else if (args.length > 0) {
       this.cli(args);
     } else {
@@ -189,112 +180,8 @@ class Gish {
     });
   }
 
-  /**
-   * @method interactive
-   * @description This method is used to start the interactive mode
-   *  It uses the readline module to get input from the user
-   */
-  async interactive() {
-    // inquirer.registerPrompt("autocomplete");
-    if (!("LESS" in process.env)) {
-      process.env["LESS"] = "-SRXF";
-    }
-
-    const histName = ".gptchat_hist";
-    const homeDir = os.homedir();
-    this.histPath = path.join(homeDir, histName);
-    let historyLines: string[] = [];
-    if (fs.existsSync(this.histPath)) {
-      const savedLines = fs.readFileSync(this.histPath, "utf8");
-      historyLines = savedLines.split("\n").reverse();
-    }
-
-    this.rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      historySize: 200,
-      history: historyLines,
-      terminal: true,
-      completer,
-      prompt: "> ",
-    });
-
-    this.rl.on("close", () => {
-      log("Goodbye!");
-      process.exit(0);
-    });
-
-    this.chat();
-  }
-
   error(message: string) {
     log(chalk.red(message));
-  }
-
-  exit() {
-    process.exit(0);
-  }
-
-  /**
-   * @method chat
-   * @description This method is used to run the chat in a loop until the user exits
-   * It uses the readline module to get input from the user, handle the input, send it, get
-   * the response from GPT-3, display it, and prompt again
-   */
-  async question() {
-    // Initial prompt
-    this.rl.prompt();
-
-    this.rl.on("line", async (line: string) => {
-      // Every time we get a response
-      this.rl.history.push(line);
-      await this.handlCommand(line);
-      this.rl.prompt();
-    });
-  }
-
-  showHelp() {
-    log("Hit tab twice at the beginning of line to show the list of commands");
-  }
-
-  /**
-   * @method handleCommand
-   * @description This method is used in interactive mode to handle the user input and call the
-   * appropriate method to handle it or display an error
-   * @param line The user input
-   */
-  async handlCommand(line: string) {
-    const args: string[] = line.toLowerCase().split(" ");
-    if (args[0] == "") {
-      return;
-    }
-    const command = args[0];
-    fs.appendFileSync(this.histPath, `${line}\n`);
-
-    switch (command) {
-      case "help":
-        this.showHelp();
-        break;
-      case "ask":
-        await this.submitChat("ask", args);
-        break;
-      case "input":
-        await this.submitChat("input", args);
-        break;
-      default:
-        this.error(chalk.red(`Unknown command: '${command}'`));
-        break;
-    }
-  }
-
-  async chat() {
-    log(chalk.blue(settings.CLI_PROMPT));
-    try {
-      await this.question();
-    } catch (e) {
-      log(e);
-      this.exit();
-    }
   }
 
   /**
