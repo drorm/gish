@@ -59,7 +59,7 @@ export class LLM {
         text = response.choices[0].message["content"];
       }
       const textWithQuery = query + text;
-      const estimateTokens = countTokens(textWithQuery) + 5; // empirically determined
+      const estimateTokens = countTokens(textWithQuery);
       /*
       console.log(
         chalk.red(
