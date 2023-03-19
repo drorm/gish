@@ -22,9 +22,10 @@ export class LLM {
    * @param query
    * @example const result = await fetch('What is the population of the city of London?');
    */
-  async fetch(query: string, stream: boolean = true) {
+  async fetch(query: string, options: any) {
+    const stream = options["stream"];
     if (stream) {
-      return await this.streamResponse(query);
+      return await this.streamResponse(query, options);
     }
 
     // non-streaming response
@@ -81,17 +82,30 @@ export class LLM {
     }
   }
 
-  async streamResponse(query: string) {
+  /**
+   * The streamResponse function calls the OpenAI API and streams the response to the query,
+   * so that the response is printed to the console as it is generated.
+   * @param query
+   * @example const result = await fetch('What is the population of the city of London?');
+   */
+  async streamResponse(query: string, options: any) {
     // return a promise with await that resolves to the response
     return new Promise(async (resolve, reject) => {
       // based on https://github.com/openai/openai-node/issues/18#issuecomment-1369996933
       let first = true;
       try {
         let response = "";
+        const messages = [{ role: "user", content: query }];
+        let prompt = "";
+        if (options["prompt"]) {
+          prompt = options["prompt"];
+          const promptContent = fs.readFileSync(prompt, "utf8");
+          messages.push({ role: "system", content: promptContent });
+        }
         const res = await this.openai.createChatCompletion(
           {
             model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: query }],
+            messages: <any>messages,
             stream: true,
           },
           { responseType: "stream" }
@@ -162,7 +176,7 @@ export class LLM {
         } else {
           console.error("An error occurred during OpenAI request", error);
         }
-        resolve("");
+        resolve(""); // Intentionally resolve with empty string, rather than reject
       }
     });
   }

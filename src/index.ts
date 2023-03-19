@@ -43,10 +43,13 @@ export class Gish {
     1. command line args: gish "What is the population of the city of London?". Note the quotes. Without the quotes, the shell will try to interpret the question mark, and you'll get an error. 
     2. piped input: echo "What is the population of the city of London?" | gish
     3. interactive mode: gish. Similar to typing "python" or "node" at the command line.
+   In chat mode a promt is sent in the beginning of the chat, and multiple requests follow
+
     `;
     program
       .option("-e --edit [file]", "edit a file and send it to the bot")
       .option("-i --input <file>", "send the request from the file")
+      .option("-p --prompt <file>", "send the prompt from the file")
       .option(
         "--dryrun",
         "don't send the request to the bot. Just show the request."
