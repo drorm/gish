@@ -63,7 +63,8 @@ export class GptRequest {
     const response = await this.fetch(text);
     if (type == "input") {
       log(chalk.green(oldFiles));
-      const newFiles = saveFiles(response, oldFiles);
+      saveFiles(response);
+      /*
       if (args.length > 3) {
         const diffCommand = settings.DIFF_COMMAND;
         log("running diff on:", newFiles[0][0], newFiles[0][1]);
@@ -79,6 +80,7 @@ export class GptRequest {
           }
         );
       }
+      */
     }
   }
 
@@ -96,7 +98,7 @@ export class GptRequest {
       spinner = ora("Waiting for GPT").start();
     }
     const start = new Date().getTime();
-    const gptResult = await gpt.fetch(request, stream);
+    const gptResult = await gpt.fetch(request, this.options);
     const tokens = gptResult.tokens;
     const cost = (tokens * settings.TOKEN_COST).toFixed(5);
     let response = gptResult.text;
