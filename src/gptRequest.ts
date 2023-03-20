@@ -134,10 +134,38 @@ export class GptRequest {
       cost: cost,
       duration: duration,
     };
-    const jsonString = JSON.stringify(jsonLog, null, 2);
-    fs.appendFileSync(settings.LOG_FILE, `${jsonString},\n`);
+    this.appendToLog(jsonLog);
     return response;
   }
+
+  /**
+   * @method appendToLog
+   * @description This method is used to append a JSON object to a log file
+   * @param {object} jsonLog - This is the JSON object that is appended to the log file
+   * @returns {void}
+   */
+  appendToLog(jsonLog: any) {
+    // check if file exists, if not create it
+    try {
+      fs.accessSync(settings.LOG_FILE);
+    } catch (e) {
+      console.log("Creating log file");
+      fs.writeFileSync(settings.LOG_FILE, "[]");
+      console.log("Created log file");
+    }
+    // read the file
+    const logFile = fs.readFileSync(settings.LOG_FILE, "utf8");
+    // parse the file
+    const logArray = JSON.parse(logFile);
+    // append the new log
+    logArray.push(jsonLog);
+    // write the file
+    fs.writeFileSync(
+      settings.LOG_FILE,
+      JSON.stringify(logArray, null, 2) + "\n"
+    );
+  }
+
   error(message: string) {
     log(chalk.red(message));
   }
