@@ -7,6 +7,12 @@ export function saveFiles2(name: string, contents: string) {
   // console.log(chalk.blue(`Saved to file ${response.fileName}`));
 }
 
+/**
+ * @function saveFiles
+ * @description This function is used to save the response from GPT-3 to a file
+ * @param {string} content - This is the response from GPT
+ * @returns {string} - This is the name of the file where the response is saved
+ */
 export function saveFiles(content: string) {
   let match = content.match(/\/\/\s*(.+\.ts)/);
   const fileName = match ? match[1] : "anonymous.ts";
