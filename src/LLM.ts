@@ -14,6 +14,7 @@ const configuration = new Configuration({
 
 export class LLM {
   openai = new OpenAIApi(configuration);
+  model = settings.DEFAULT_MODEL;
   constructor() {}
 
   /**
@@ -23,6 +24,9 @@ export class LLM {
    * @example const result = await fetch('What is the population of the city of London?');
    */
   async fetch(query: string, options: any) {
+    if (options["model"]) {
+      this.model = options["model"];
+    }
     const stream = options["stream"];
     if (stream) {
       return await this.streamResponse(query, options);
@@ -31,7 +35,7 @@ export class LLM {
     // non-streaming response
     try {
       const completion = await this.openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: this.model,
         messages: [{ role: "user", content: query }],
       });
       /*
@@ -104,7 +108,7 @@ export class LLM {
         }
         const res = await this.openai.createChatCompletion(
           {
-            model: "gpt-3.5-turbo",
+            model: this.model,
             messages: <any>messages,
             stream: true,
           },
