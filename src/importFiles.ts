@@ -54,18 +54,3 @@ export function importFiles(content: string): [boolean, string, string[]] {
   // Return: true -- success, Join the modified lines into a single string and the list of changed files
   return [true, modifiedLines.join("\n"), toChangeFiles];
 }
-
-/*
-if (require.main === module) {
-  // Test the function
-  const string =
-    "here are some files:\n#import tests/foo\n#import bar\n#import baz\n, all done\n";
-  const [success, text, files] = importFiles(string);
-  if (success) {
-    console.log(text);
-    console.log(files);
-  } else {
-    console.error("Error: one or more imports failed:", text);
-  }
-}
-*/
