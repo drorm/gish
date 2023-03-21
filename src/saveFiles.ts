@@ -13,7 +13,7 @@ export function saveFiles2(name: string, contents: string) {
  * @param {string} content - This is the response from GPT
  * @returns {string} - This is the name of the file where the response is saved
  */
-export function saveFiles(content: string) {
+export function saveFiles(content: string): string {
   let match = content.match(/\/\/\s*(.+\.ts)/);
   const fileName = match ? match[1] : "anonymous.ts";
 
@@ -25,14 +25,17 @@ export function saveFiles(content: string) {
   const originalName = fileObj.name;
   // { root: '', dir: '', base: 'hello.ts', ext: '.ts', name: 'hello' }
   let newName = path.format(fileObj);
-  while (fs.existsSync(newName)) {
+  while (fs.existsSync(newName) && suffix <= 5) {
     fileObj.name = `${originalName}-${suffix}`;
     newName = path.format(fileObj);
     suffix += 1;
-    if (suffix > 5) break;
   }
-  if (newName) {
+  try {
     fs.writeFileSync(newName, `${content}\n`);
-    console.log(chalk.blue(`saved to ${newName}`));
+    console.log(chalk.blue(`Saved to file ${newName}`));
+    return newName;
+  } catch (err) {
+    console.log(chalk.red(`Could not save file ${newName}`));
+    return "";
   }
 }
