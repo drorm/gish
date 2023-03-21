@@ -4,6 +4,7 @@ import { exec } from "child_process";
 import chalk from "chalk";
 import ora from "ora"; // spinner
 import { countTokens } from "gptoken";
+import { spawn } from "child_process";
 
 import { saveFiles } from "./saveFiles.js";
 import { settings } from "./settings.js";
@@ -63,24 +64,15 @@ export class GptRequest {
     const response = await this.fetch(text);
     if (type == "input") {
       log(chalk.green(oldFiles));
-      saveFiles(response);
-      /*
-      if (args.length > 3) {
-        const diffCommand = settings.DIFF_COMMAND;
-        log("running diff on:", newFiles[0][0], newFiles[0][1]);
+      const newFile = saveFiles(response);
 
-        // Run the diff command
-        exec(
-          `${diffCommand} ${newFiles[0].join(" ")}`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`);
-              return;
-            }
-          }
-        );
+      if (this.options.diff && newFile) {
+        const diffCommand = settings.DIFF_COMMAND;
+        log("running diff on:", newFile, this.options.diff);
+        const editProcess = spawn(diffCommand, [newFile, this.options.diff], {
+          stdio: "inherit",
+        });
       }
-      */
     }
   }
 
@@ -94,11 +86,9 @@ export class GptRequest {
   async fetch(request: string) {
     let spinner;
     const stream = this.options.stream;
-    if (!stream) {
-      spinner = ora("Waiting for GPT").start();
-    }
+    spinner = ora("Waiting for GPT").start();
     const start = new Date().getTime();
-    const gptResult = await gpt.fetch(request, this.options);
+    const gptResult = await gpt.fetch(request, this.options, spinner);
     const tokens = gptResult.tokens;
     const cost = (tokens * settings.TOKEN_COST).toFixed(5);
     let response = gptResult.text;
@@ -107,7 +97,7 @@ export class GptRequest {
     const end = new Date().getTime();
     const duration = (end - start) / 1000;
 
-    if (spinner) {
+    if (!stream) {
       spinner.stop();
       log(chalk.green(response));
     }
