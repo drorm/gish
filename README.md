@@ -11,10 +11,10 @@ gish is a shell to interact with openai GPT. **You need a paid account and a key
 - Keep a history of your questions and prompts in a local file for easy reference and modification
 - Save responses for later review
 - Easily incorporate files into your prompts using the `#import` statement
-- Save code or other information provided in code blocks with the `save_files.py` script
-- Modify existing code easily with the `save_files.py` script
+- Flag to save code to file
+- Easily compare generated file with original
 - Stream (default), or get the result all at once
-- See the cost of each request
+- See the number of tokens used in each request
 - dryrun mode shows you what would be sent and how many estimated tokens. Useful to estimate the max size of output.
 - Incorporate tasks:
   - Generate git commit messages
@@ -28,6 +28,10 @@ gish is a shell to interact with openai GPT. **You need a paid account and a key
 
 2. run dist/index.js
 3. Optionally, create a symbolic link to dist/index.js somewhere in your path. Alternatively, create an alias.
+4. Set up your API key using one of these methods:
+
+- **OPENAI_API_KEY** in your environment
+- put the API key in ~/opeanai
 
 ## modes
 
@@ -42,7 +46,11 @@ Note the quotes. Without the quotes, the shell will try to interpret the questio
 
 ### Piped
 
-piped input: echo "What is the population of the city of London?" | gish
+piped input:
+
+```
+echo "What is the population of the city of London?" | gish
+```
 
 ### interactive mode:
 
@@ -60,63 +68,42 @@ gist < foo
 where foo's content is
 
 ```
+ask tell me a joke
+```
 
 ### Command line usage
 
+- gish --help -- shows all the different options
 - gish tell me a joke
 - gish "what is the population of San Francisco?". You need the quotes so that the shell doesn't complain about the '?'.
-- gish -i foo sends the content of foo. Equivalent to cat foo | gish.
 - gishe -e -- puts you in your editor and sends the content when you're done. To abort, either don't create the file, or empty it.
-- gish -e -- foo.txt same as the previous option except that use an existing file.
+- gish -e foo.txt -- same as the previous option except that use an existing file.
+- gish -i foo -- sends the content of foo. Equivalent to cat foo | gish.
+- gish -m gpt-4 -- specify the model
+- gish -p foo -- use foo as a prompt in a chat. You can use other flags or arguments to pass the actual request, but this is uses as the background. See https://platform.openai.com/docs/guides/chat. Gish sets this prompt as the first in the chat with the role of assistant.
 
 ### Interactive mode
 
-Typically you'll go through the following cycle
+- Interactive mode lets you type requests directly and pushing Enter sends the requests.
+- You don't need to worry about escaping special characters.
 
-1.  Enter your prompt in the input file
-2.  Use the `send` command in the CLI: `send path/to/input/file path/to/output/file`
-3.  Review the output in the output file
-4.  Repeat as needed, using `^P` to bring up the previous command and `enter` to send it
+## priority
 
-### priority
-
-priority, similar to linux commands like cat and echo:
+Similar to linux commands like cat and echo, the following is how Gish prioritized the arguments and flags:
 
 1. command line args: gish "What is the population of the city of London?". Note the quotes. Without the quotes, the shell will try to interpret the question mark, and you'll get an error.
 2. piped input: echo "What is the population of the city of London?" | gish
 3. interactive mode: gish. Similar to typing "python" or "node" at the command line.
 
-### Using Files
-
-#### Input File
-
-All input to ChatGPT is sent through the input file, which allows for:
-
-- Rich editing capabilities in your preferred editor, including undo/redo
-- Version control of prompts using Git
-- Inclusion of other files in your input using the `#include` statement
-
-#### Import
+### #Import
 
 Use the `#import` statement in your input file to include prompts or comments/text that you want ChatGPT to react to.
 
 **Example**
 
 ```
-
-#import prompts/coding
-
-The following program save_files.py saves files by appending ".1" to the file name. Change is so that it does the following:
-
-#include prompts/coding
-
-The `save_files.py` script can be used to save files with the following behavior:
-
-1. Appends "-1" to the prefix of the file name. So foo.py becomes foo-1.py.
-2. checks to see if the new file name exists. If it exists, increment the -1 to -2 and keep doing that till you don't find a name that exists.
-3. Save with the new name
-
-#import save_files.py
+#import hello.ts
+The above program prints hello world. Change it to print goodbye world.
 
 ```
 
@@ -157,4 +144,7 @@ submit input output diff
 ```
 
 And the app will wait for the bot to send a new version of the file and will diff it with the original.
+
+```
+
 ```
