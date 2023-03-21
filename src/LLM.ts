@@ -23,13 +23,13 @@ export class LLM {
    * @param query
    * @example const result = await fetch('What is the population of the city of London?');
    */
-  async fetch(query: string, options: any) {
+  async fetch(query: string, options: any, spinner: any) {
     if (options["model"]) {
       this.model = options["model"];
     }
     const stream = options["stream"];
     if (stream) {
-      return await this.streamResponse(query, options);
+      return await this.streamResponse(query, options, spinner);
     }
 
     // non-streaming response
@@ -92,10 +92,12 @@ export class LLM {
    * @param query
    * @example const result = await fetch('What is the population of the city of London?');
    */
-  async streamResponse(query: string, options: any) {
+  async streamResponse(query: string, options: any, spinner: any) {
     // return a promise with await that resolves to the response
     return new Promise(async (resolve, reject) => {
       // based on https://github.com/openai/openai-node/issues/18#issuecomment-1369996933
+      // need to jump through ugly hoops to get streaming to work because the opeanai node library doesn't support
+      // streaming responses
       let first = true;
       try {
         let response = "";
@@ -142,6 +144,7 @@ export class LLM {
               if (text) {
                 if (first && text.match(/^\s*$/)) {
                   // ignore the first empty line
+                  spinner.stop(); // starting to see a response, so stop the spinner
                   first = false;
                 } else {
                   // convert multiple newlines to a single newline
