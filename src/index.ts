@@ -47,9 +47,9 @@ export class Gish {
 
     `;
     program
+      .option("-d --diff [file]", "diff the generated output with the file")
       .option("-e --edit [file]", "edit a file and send it to the bot")
       .option("-i --input <file>", "send the request from the file")
-      .option("-d --diff [file]", "diff the generated output with the file")
       .option("-m --model <name>", "specify the model to use")
       .option("-p --prompt <file>", "send the prompt from the file")
       .option(

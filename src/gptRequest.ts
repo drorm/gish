@@ -49,7 +49,7 @@ export class GptRequest {
       request = args.join(" ");
     }
 
-    const [success, text, oldFiles] = importFiles(request);
+    const [success, text, diffFiles] = importFiles(request);
     if (!success) {
       this.error(text);
       return;
@@ -63,13 +63,17 @@ export class GptRequest {
 
     const response = await this.fetch(text);
     if (type == "input") {
-      log(chalk.green(oldFiles));
+      log(chalk.green("difffiles:", diffFiles));
       const newFile = saveFiles(response);
+      let diffFile = this.options.diff;
+      if (!diffFile && diffFiles.length > 0) {
+        diffFile = diffFiles[0];
+      }
 
-      if (this.options.diff && newFile) {
+      if (diffFile && newFile) {
         const diffCommand = settings.DIFF_COMMAND;
-        log("running diff on:", newFile, this.options.diff);
-        const editProcess = spawn(diffCommand, [newFile, this.options.diff], {
+        log("running diff on:", newFile, diffFile);
+        const editProcess = spawn(diffCommand, [newFile, diffFile], {
           stdio: "inherit",
         });
       }
@@ -139,9 +143,7 @@ export class GptRequest {
     try {
       fs.accessSync(settings.LOG_FILE);
     } catch (e) {
-      console.log("Creating log file");
       fs.writeFileSync(settings.LOG_FILE, "[]");
-      console.log("Created log file");
     }
     // read the file
     const logFile = fs.readFileSync(settings.LOG_FILE, "utf8");

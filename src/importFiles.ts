@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { Utils } from "./utils.js";
 
 /**
  * Handle #import statements.
@@ -23,27 +24,28 @@ export function importFiles(content: string): [boolean, string, string[]] {
   // Iterate through the lines of the string
   for (const line of lines) {
     // Match the #import statement using a regular expression
-    const fimport = line.match(/^\s*#import\s+[\w\\./]+/);
+    const fimport = line.match(/^\s*#import\s+[~\w\\./]+/);
     // Match the #change statement using a regular expression
     // Changed files will later by diffed with the output from the bot
-    const fchange = line.match(/^\s*#change\s+[\w\\./]+/);
+    const fchange = line.match(/^\s*#change\s+[~\w\\./]+/);
     if (fimport || fchange) {
       // If the line is an #import or #change statement, extract the file name
-      const fname = line.split(" ")[1];
+      const fname = line.split(/\s+/)[1];
+      const filePath = Utils.normalizePath(fname); // Normalize the file path
       if (fchange) {
         //If it's a #change statement
-        toChangeFiles.push(fname); // Append the file name to the files array
+        toChangeFiles.push(filePath); // Append the file name to the files array
       }
 
       try {
         // Open the file and read its contents
-        const fileContents = fs.readFileSync(fname, "utf-8");
+        const fileContents = fs.readFileSync(filePath, "utf-8");
 
         // Add the file contents to the modified lines list
         modifiedLines.push(...fileContents.split("\n"));
       } catch (e) {
         // If the file can't be opened
-        return [false, `#import file ${fname} was not found`, toChangeFiles];
+        return [false, `#import file ${filePath} was not found`, toChangeFiles];
       }
     } else {
       // If the line is not an #import or # change statement, add it to the modified lines list as is
