@@ -12,12 +12,6 @@ export class Interactive {
   histPath: string = "";
   pr: string = chalk.blue("> ");
   options: any = {};
-  completer = (line: string) => {
-    const completions = ["history", "help", "ask", "input"];
-    const hits = completions.filter((c) => c.startsWith(line));
-    // Show all completions if none found
-    return [hits.length ? hits : completions, line];
-  };
 
   constructor() {}
   /**
@@ -28,10 +22,6 @@ export class Interactive {
   async run(options: any, gptRequest: any) {
     this.options = options;
     // inquirer.registerPrompt("autocomplete");
-    if (!("LESS" in process.env)) {
-      process.env["LESS"] = "-SRXF";
-    }
-
     const histName = ".gptchat_hist";
     const homeDir = os.homedir();
     this.histPath = path.join(homeDir, histName);
@@ -41,14 +31,12 @@ export class Interactive {
       historyLines = savedLines.split("\n").reverse();
     }
 
-    const completer = this.completer;
     this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
       historySize: 200,
       history: historyLines,
       terminal: true,
-      completer,
       prompt: "> ",
     });
 
@@ -101,31 +89,11 @@ export class Interactive {
     }
     const command = args[0];
     fs.appendFileSync(this.histPath, `${line}\n`);
-
-    switch (command) {
-      case "help":
-        this.showHelp();
-        break;
-      case "ask":
-        await this.submitChat("ask", args);
-        break;
-      case "input":
-        await this.submitChat("input", args);
-        break;
-      default:
-        console.log(chalk.red(`Unknown command: '${command}'`));
-        break;
-    }
+    await this.submitChat("ask", args);
   }
 
   async submitChat(type: string, args: string[]) {
     const gptRequest = new GptRequest();
-    await gptRequest.submitChat(type, args, this.options);
-  }
-
-  showHelp() {
-    console.log(
-      "Hit tab twice at the beginning of line to show the list of commands"
-    );
+    await gptRequest.submitChat(type, args, this.options, false);
   }
 }
