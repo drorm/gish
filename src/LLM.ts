@@ -144,7 +144,9 @@ export class LLM {
               if (text) {
                 if (first && text.match(/^\s*$/)) {
                   // ignore the first empty line
-                  spinner.stop(); // starting to see a response, so stop the spinner
+                  if (spinner) {
+                    spinner.stop(); // starting to see a response, so stop the spinner
+                  }
                   first = false;
                 } else {
                   // convert multiple newlines to a single newline

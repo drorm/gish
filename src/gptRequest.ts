@@ -32,7 +32,12 @@ export class GptRequest {
    * @param {string[]} args - This is an array of strings that contains the request
    * @param {object} options - This is an object that contains the options passed to the command line
    */
-  async submitChat(type: string, args: string[], options: any) {
+  async submitChat(
+    type: string,
+    args: string[],
+    options: any,
+    useSpinner: boolean = true
+  ) {
     this.options = options;
     let request = "";
     // input file name
@@ -61,9 +66,8 @@ export class GptRequest {
       return;
     }
 
-    const response = await this.fetch(text);
+    const response = await this.fetch(text, useSpinner);
     if (type == "input") {
-      log(chalk.green("difffiles:", diffFiles));
       const newFile = saveFiles(response);
       let diffFile = this.options.diff;
       if (!diffFile && diffFiles.length > 0) {
@@ -87,10 +91,12 @@ export class GptRequest {
    * @param {string} request - This is the request that is sent to GPT-3
    * @returns {string} - This is the response from GPT-3
    */
-  async fetch(request: string) {
-    let spinner;
+  async fetch(request: string, useSpinner: boolean) {
+    let spinner = null;
     const stream = this.options.stream;
-    spinner = ora("Waiting for GPT").start();
+    if (useSpinner) {
+      spinner = ora("Waiting for GPT").start();
+    }
     const start = new Date().getTime();
     const gptResult = await gpt.fetch(request, this.options, spinner);
     const tokens = gptResult.tokens;
@@ -101,7 +107,7 @@ export class GptRequest {
     const end = new Date().getTime();
     const duration = (end - start) / 1000;
 
-    if (!stream) {
+    if (!stream && spinner) {
       spinner.stop();
       log(chalk.green(response));
     }
