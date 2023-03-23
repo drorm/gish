@@ -47,11 +47,18 @@ export class Gish {
 
     `;
     program
-      .option("-d --diff [file]", "diff the generated output with the file")
-      .option("-e --edit [file]", "edit a file and send it to the bot")
+      .option("-d --diff <file>", "diff the generated output with this file")
+      .option(
+        "-e --edit [file]",
+        "edit a file and send it to the bot. If no file specified, create a temp file."
+      )
       .option("-i --input <file>", "send the request from the file")
       .option("-m --model <name>", "specify the model to use")
       .option("-p --prompt <file>", "send the prompt from the file")
+      .option(
+        "-s --save <file>",
+        "save the output to a file. If it exists, increment the file name"
+      )
       .option(
         "--dryrun",
         "don't send the request to the bot. Just show the request."
