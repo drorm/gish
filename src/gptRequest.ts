@@ -67,12 +67,12 @@ export class GptRequest {
     }
 
     const response = await this.fetch(text, useSpinner);
-    if (type == "input") {
-      const newFile = saveFiles(response);
+    if (type == "input" || this.options.save) {
       let diffFile = this.options.diff;
       if (!diffFile && diffFiles.length > 0) {
         diffFile = diffFiles[0];
       }
+      const newFile = saveFiles(response, diffFile, this.options.save);
 
       if (diffFile && newFile) {
         const diffCommand = settings.DIFF_COMMAND;
