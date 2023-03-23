@@ -12,4 +12,5 @@ export class settings {
   public static TOKEN_COST = 0.002 / 1000; // per https://openai.com/pricing
   public static DEFAULT_EDITOR = "vim";
   public static DEFAULT_MODEL = "gpt-3.5-turbo";
+  public static DEFAULT_EXTENSION = ".ts";
 }
