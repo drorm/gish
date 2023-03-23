@@ -38,7 +38,7 @@ export function saveFiles(
   const originalName = fileObj.name;
   // { root: '', dir: '', base: 'hello.ts', ext: '.ts', name: 'hello' }
   let newName = path.format(fileObj);
-  while (fs.existsSync(newName) && suffix <= 5) {
+  while (fs.existsSync(newName) && suffix <= 500) {
     fileObj.name = `${originalName}-${suffix}`;
     newName = path.format(fileObj);
     suffix += 1;
