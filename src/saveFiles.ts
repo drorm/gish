@@ -1,7 +1,9 @@
 import * as fs from "fs";
-import { settings } from "./settings.js";
 import * as path from "path";
 import chalk from "chalk";
+
+import { settings } from "./settings.js";
+import { Utils } from "./utils.js";
 
 export function saveFiles2(name: string, contents: string) {
   // console.log(chalk.blue(`Saved to file ${response.fileName}`));
@@ -13,12 +15,23 @@ export function saveFiles2(name: string, contents: string) {
  * @param {string} content - This is the response from GPT
  * @returns {string} - This is the name of the file where the response is saved
  */
-export function saveFiles(content: string): string {
-  let match = content.match(/\/\/\s*(.+\.ts)/);
-  const fileName = match ? match[1] : "anonymous.ts";
+export function saveFiles(
+  content: string,
+  diffFile: string,
+  saveFile: string
+): string {
+  let fileName = "";
+  if (saveFile) {
+    fileName = saveFile;
+    // if there's a diff file, figure out the extension
+  } else if (diffFile) {
+    const ext = path.extname(diffFile);
+    fileName = `${Utils.genTempFileName()}${ext}`;
+  } else {
+    fileName = `${Utils.genTempFileName()}${settings.DEFAULT_EXTENSION}`;
+  }
 
-  const fullFileName = path.join(settings.GEN_DIR, fileName);
-  const fileObj = path.parse(fullFileName);
+  const fileObj = path.parse(fileName);
   // { root: '', dir: '', base: 'hello.ts', ext: '.ts', name: 'hello' }
   fileObj.base = ""; // So that our changes affect
   let suffix = 1;
