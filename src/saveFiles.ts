@@ -20,7 +20,7 @@ export function saveFiles(
   if (saveFile) {
     fileName = saveFile;
     // if there's a diff file, figure out the extension
-  } else if (diffFile) {
+  } else if (diffFile && diffFile.length > 0) {
     const ext = path.extname(diffFile);
     fileName = `${Utils.genTempFileName()}${ext}`;
   } else {
