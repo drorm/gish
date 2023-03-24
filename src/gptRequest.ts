@@ -96,7 +96,11 @@ export class GptRequest {
     }
     const start = new Date().getTime();
     const gptResult = await gpt.fetch(request, this.options, spinner);
-    const tokens = gptResult.tokens;
+    let tokens = gptResult.tokens;
+    if (tokens === 0) {
+      // when streaming we don't get the number of tokens
+      tokens = countTokens(request + gptResult.text);
+    }
     const cost = (tokens * settings.TOKEN_COST).toFixed(5);
     let response = gptResult.text;
     const currentTimestamp = new Date().toLocaleString();

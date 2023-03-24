@@ -123,8 +123,7 @@ export class LLM {
               if (res.data.usage) {
                 tokens = res.data.usage.total_tokens;
               } else {
-                const words = response.split(/\s+/).length;
-                tokens = Math.round(words * 1.3); // 1.3 is a conservative average token to word ratio
+                tokens = 0; // to indicate that we don't know the number of tokens
               }
               resolve({ text: response, tokens: tokens });
               return; // Stream finished
