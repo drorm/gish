@@ -24,6 +24,7 @@ export class LLM {
    * @example const result = await fetch('What is the population of the city of London?');
    */
   async fetch(query: string, options: any, spinner: any) {
+    console.log("spinner", spinner);
     if (options["model"]) {
       this.model = options["model"];
     }
@@ -142,11 +143,12 @@ export class LLM {
               const parsed = JSON.parse(message);
               let text = parsed.choices[0].delta.content;
               if (text) {
+                if (spinner) {
+                  spinner.stop(); // starting to see a response, so stop the spinner
+                  spinner = null;
+                }
                 if (first && text.match(/^\s*$/)) {
                   // ignore the first empty line
-                  if (spinner) {
-                    spinner.stop(); // starting to see a response, so stop the spinner
-                  }
                   first = false;
                 } else {
                   // convert multiple newlines to a single newline
