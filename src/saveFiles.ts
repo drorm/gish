@@ -5,10 +5,6 @@ import chalk from "chalk";
 import { settings } from "./settings.js";
 import { Utils } from "./utils.js";
 
-export function saveFiles2(name: string, contents: string) {
-  // console.log(chalk.blue(`Saved to file ${response.fileName}`));
-}
-
 /**
  * @function saveFiles
  * @description This function is used to save the response from GPT-3 to a file
