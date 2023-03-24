@@ -24,7 +24,6 @@ export class LLM {
    * @example const result = await fetch('What is the population of the city of London?');
    */
   async fetch(query: string, options: any, spinner: any) {
-    console.log("spinner", spinner);
     if (options["model"]) {
       this.model = options["model"];
     }
@@ -66,22 +65,13 @@ export class LLM {
       }
       const textWithQuery = query + text;
       const estimateTokens = countTokens(textWithQuery);
-      /*
-      console.log(
-        chalk.red(
-          `Tokens: ${tokens} Estimate: ${estimateTokens} ratio: ${
-            tokens / estimateTokens
-          }`
-        )
-      );
-      */
       return { text: text, tokens: tokens };
     } catch (error: any) {
       if (error.response) {
-        console.log(error.response.status);
-        console.log(error.response.data);
+        console.error(error.response.status);
+        console.error(error.response.data);
       } else {
-        console.log(error.message);
+        console.error(error.message);
       }
       return error;
     }

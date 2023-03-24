@@ -12,8 +12,6 @@ import { LLM } from "./LLM.js";
 
 const gpt = new LLM();
 
-const log = console.log;
-
 /**
  * @class GptRequest
  * @description This class is used to send a request to GPT-3
@@ -60,9 +58,9 @@ export class GptRequest {
       return;
     }
     if (options["dryrun"]) {
-      log(chalk.green(text));
+      console.log(chalk.green(text));
       const estimateTokens = countTokens(text);
-      log(chalk.blue(`Estimated request tokens: ${estimateTokens}`));
+      console.log(chalk.blue(`Estimated request tokens: ${estimateTokens}`));
       return;
     }
 
@@ -76,7 +74,6 @@ export class GptRequest {
 
       if (diffFile && newFile) {
         const diffCommand = settings.DIFF_COMMAND;
-        log("running diff on:", newFile, diffFile);
         const editProcess = spawn(diffCommand, [newFile, diffFile], {
           stdio: "inherit",
         });
@@ -109,7 +106,7 @@ export class GptRequest {
 
     if (!stream && spinner) {
       spinner.stop();
-      log(chalk.green(response));
+      console.log(chalk.green(response));
     }
 
     if (this.options.stats) {
@@ -123,7 +120,7 @@ export class GptRequest {
         // Currently we get an estimate when streaming
         stats += ". Tokens and cost are estimates when streaming.";
       }
-      log(chalk.blue(stats));
+      console.log(chalk.blue(stats));
     }
 
     const jsonLog = {
@@ -165,6 +162,6 @@ export class GptRequest {
   }
 
   error(message: string) {
-    log(chalk.red(message));
+    console.error(chalk.red(message));
   }
 }
