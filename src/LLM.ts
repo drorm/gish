@@ -1,10 +1,32 @@
 import { Configuration, OpenAIApi } from "openai";
 import * as fs from "fs";
+import * as os from "os";
 import chalk from "chalk";
 import { countTokens } from "gptoken";
 import { settings } from "./settings.js";
+let API_KEY = null;
+if (process.env.OPENAI_API_KEY) {
+  API_KEY = process.env.OPENAI_API_KEY;
+} else {
+  try {
+    const file = `${os.homedir()}/.openai`;
+    if (fs.existsSync(file)) {
+      API_KEY = fs.readFileSync(file, "utf8").trimEnd();
+    }
+  } catch (e) {
+    // ignore errors
+  }
+}
+if (!API_KEY) {
+  console.error(
+    chalk.red(
+      "Unable to find the OpenAI API key. Please set OPENAI_API_KEY environment variable or put your key in ~/.openai file."
+    )
+  );
+  process.exit(1);
+}
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: API_KEY,
 });
 
 /**
