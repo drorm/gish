@@ -29,11 +29,11 @@ export function importFiles(content: string): [boolean, string, string[]] {
     // Diffed files will later by diffed with the output from the bot
     const diffFile = line.match(/^\s*#diff\s+[~\w\\./]+/);
     if (importFile || diffFile) {
-      // If the line is an #import or #change statement, extract the file name
+      // If the line is an #import or #diff statement, extract the file name
       const fname = line.split(/\s+/)[1];
       const filePath = Utils.normalizePath(fname); // Normalize the file path
       if (diffFile) {
-        //If it's a #change statement
+        //If it's a #diff statement
         toDiffFiles.push(filePath); // Append the file name to the files array
       }
 
@@ -48,7 +48,7 @@ export function importFiles(content: string): [boolean, string, string[]] {
         return [false, `#import file ${filePath} was not found`, toDiffFiles];
       }
     } else {
-      // If the line is not an #import or # change statement, add it to the modified lines list as is
+      // If the line is not an #import or #diff statement, add it to the modified lines list as is
       modifiedLines.push(line);
     }
   }
