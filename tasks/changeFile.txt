@@ -1,0 +1,16 @@
+The response for this request needs to be in JSON object format. When a name of a file is mentioned in the request you should include it in your response.
+{
+  "fileName1": {
+    "contents": "contents of file 1",
+    "comments": "comments for file 1",
+  },
+  {
+  "words.ts": {
+    "contents": "",
+    "comments": "This is a TypeScript function that takes a string of file content and returns the number of words in it."
+  },
+  "generalComments": ""
+	}
+}
+Other than that do not provide any additional information in the response. The response should be a JSON object with the file names as keys and the contents of the files as values.
+Only provide comments if they provide extra information and they should be brief and to the point.  The contents should be code and nothing else.
