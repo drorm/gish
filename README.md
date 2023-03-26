@@ -35,6 +35,10 @@ Gish is a CLI to interact with OpenAI GPT. It follows Unix conventions and provi
 - Dry-run mode shows you what would be sent and how many estimated tokens. Useful to estimate the max size of output
 - Automatically generate Git commit messages and letting you edit them prior to submitting
 
+## Screencast
+
+[![Screencast](https://asciinema.org/a/570434.png)](https://asciinema.org/a/570434)
+
 ## Installation
 
 ### Download an executable
