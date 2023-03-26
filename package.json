@@ -12,8 +12,8 @@
     "prd": "pm2 start index.ts",
     "build": "tsc -p tsconfig.json; chmod 700 dist/index.js",
     "test": "jest",
-    "esb": "esbuild ./src --bundle --platform=node --outfile=dist/esb.js",
-    "pkg": "pkg dist/esb.js -t node18-linux-x64,node18-macos-x64,node18-win-x64 experimental-modules --out-dir releases"
+    "esb": "esbuild ./src --bundle --platform=node --outfile=dist/gish.js",
+    "pkg": "pkg dist/gish.js -t node18-linux-x64,node18-macos-x64,node18-win-x64 --out-dir releases/$GISH_VERSION"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
