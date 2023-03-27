@@ -42,7 +42,7 @@ Gish is a CLI to interact with OpenAI GPT. It follows Unix conventions and provi
 
 ### Download an executable
 
-1. Go to the [**Releases**](https://github.com/drorm/gish/releases) page of this repository.
+1. Go to the [**Releases**](releases) page of this repository.
 2. Download the executable for your platform from the assets section.
 
 ### From source
@@ -53,8 +53,6 @@ Gish is a CLI to interact with OpenAI GPT. It follows Unix conventions and provi
 4. run dist/index.js
 
 Alternativey, replace step 3 with npm dev to make changes to the code an
-
-### Download an
 
 ## Usage
 
