@@ -1,12 +1,11 @@
 # gish
 
-# gishTable of Contents
+# Table of Contents
 
-- [About](#about)
 - [Features](#features)
 - [Installation](#installation)
-  - [Download an executable] ([download-an-executable)
-  - [From source] (#from-source)
+  - [Download an executable](download-an-executable)
+  - [From source](#from-source)
 - [Usage](#usage)
   - [Modes](#modes)
     - [Command Line](#command-line)
@@ -16,8 +15,8 @@
   - [Interactive Mode](#interactive-mode-1)
   - [Priority](#priority)
   - [#Import](#import)
-  - [Output/Log File](#outputlog-file)
   - [#Diff: Changing and Diffing a File](#diff-changing-and-diffing-a-file)
+  - [Log File](#log-file)
   - [Stats](#stats)
 
 Gish is a CLI to interact with OpenAI GPT. It follows Unix conventions and provides a rich set of features via flags. Please note that you need a paid OpenAI account and a key to use it, but it is a good investment if you can afford it.
@@ -133,16 +132,37 @@ Use the `#import` statement in your input file to include prompts or comments/te
 **Example**
 
 ```
-#import hello.ts
+#import ~/work/gish/tasks/coding.txt
 The above program prints hello world. Change it to print goodbye world.
+#import hello.ts
 ```
 
-This is a typical example of the workflow when using ChatGPT for coding:
+And here's the text of tasks/coding.txt
+```
+I want you to act as a coding  collaborator. I will ask you software questions and you will answer with code. 
+Your response for this request needs to be code and nothing else. 
+Only provide comments if they provide important extra information and they should be brief and to the point.  The contents should be in the code as comments at the top of the file.
+------------------------------------------------------------------------------
+```
+This is a typical example of the workflow when using gish for coding:
 
 1. Use a standard prompt to define the code handling
 2. Tell the bot what you want it to do
 3. Tell it which file it needs to work on.
 
+
+### #Diff: Changing and Diffing a File
+
+When you want GPT to make changes to a file and then diff it, use the `#diff` option:
+
+```
+#import ~/work/gish/tasks/coding.txt
+In the following file, document the code better
+#diff settings.ts
+```
+
+This results in the same behavior as in `#import`, but also lets the app know that you're changing the file. Once the code is generated, the diff command defined in `settings.ts` is launched on the original and generated files.
+**For complex changes, I find it better the Copilot.**
 ### Log File
 
 The log file, ~/.gish.json behaves as the log of your conversations with ChatGPT. Since it's a standard file, you can use an editor or a pager to look at the history of your interactions with ChatGPT
@@ -151,17 +171,6 @@ It includes:
 - A timestamp of a request
 - The actual request
 - The response
-
-### #Diff: Changing and Diffing a File
-
-When you want the bot to make changes to a file and then diff it, use the `#diff` option:
-
-```
-In the following file, document the code better
-#diff settings.ts
-```
-
-This results in the same behavior as in `#import`, but also lets the app know that you're changing the file. Once the code is generated, the diff command defined in `settings.ts` is launched on the original and generated files.
 
 ### Stats
 
