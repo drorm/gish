@@ -5,6 +5,7 @@ import chalk from "chalk";
 import ora from "ora"; // spinner
 import { countTokens } from "gptoken";
 import { spawn } from "child_process";
+import * as tty from "node:tty";
 
 import { saveFiles } from "./saveFiles.js";
 import { settings } from "./settings.js";
@@ -36,6 +37,9 @@ export class GptRequest {
     options: any,
     useSpinner: boolean = true
   ) {
+    if (!tty.isatty(process.stdout.fd)) {
+      useSpinner = false;
+    }
     this.options = options;
     let request = "";
     // input file name
