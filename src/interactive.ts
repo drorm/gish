@@ -4,7 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import chalk from "chalk";
 
-import { settings } from "./settings.js";
+import { Settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
 
 export class Interactive {
@@ -49,7 +49,7 @@ export class Interactive {
   }
 
   async chat() {
-    console.log(chalk.blue(settings.CLI_PROMPT));
+    console.log(chalk.blue(Settings.getSetting("CLI_PROMPT")));
     try {
       await this.question();
     } catch (e) {

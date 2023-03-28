@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import chalk from "chalk";
 
-import { settings } from "./settings.js";
+import { Settings } from "./settings.js";
 import { Utils } from "./utils.js";
 
 /**
@@ -24,7 +24,9 @@ export function saveFiles(
     const ext = path.extname(diffFile);
     fileName = `${Utils.genTempFileName()}${ext}`;
   } else {
-    fileName = `${Utils.genTempFileName()}${settings.DEFAULT_EXTENSION}`;
+    fileName = `${Utils.genTempFileName()}${Settings.getSetting(
+      "DEFAULT_EXTENSION"
+    )}`;
   }
 
   const fileObj = path.parse(fileName);

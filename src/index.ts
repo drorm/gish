@@ -8,7 +8,7 @@ import * as readline from "node:readline/promises";
 import { spawn } from "child_process";
 import { program } from "commander";
 
-import { settings } from "./settings.js";
+import { Settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
 import { Interactive } from "./interactive.js";
 
@@ -38,6 +38,7 @@ export class Gish {
    * If there are options, it starts the command line mode
    */
   async init() {
+    new Settings();
     const extraHelp = `
     priority, similar to linux commands like cat and echo:
     1. command line args: gish "What is the population of the city of London?". Note the quotes. Without the quotes, the shell will try to interpret the question mark, and you'll get an error. 
@@ -149,10 +150,11 @@ export class Gish {
     }
     // we got a file name
     // launch an editor on the file. Let's see if we can get the editor from the environment
-    let editor = process.env.EDITOR;
-    if (!editor) {
-      editor = settings.DEFAULT_EDITOR;
-    }
+    console.log("editor: ", process.env.EDITOR);
+    const editor = process.env.EDITOR
+      ? process.env.EDITOR
+      : Settings.getSetting("DEFAULT_EDITOR");
+    console.log("editor: ", editor);
     const result = await this.runEditor(editor, filePath);
     if (result === "") {
       args.push("input"); // to be consistent with the interactive mode

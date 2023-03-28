@@ -8,7 +8,7 @@ import { spawn } from "child_process";
 import * as tty from "node:tty";
 
 import { saveFiles } from "./saveFiles.js";
-import { settings } from "./settings.js";
+import { Settings } from "./settings.js";
 import { LLM } from "./LLM.js";
 
 const gpt = new LLM();
@@ -77,7 +77,7 @@ export class GptRequest {
       const newFile = saveFiles(response, diffFile, this.options.save);
 
       if (diffFile && newFile) {
-        const diffCommand = settings.DIFF_COMMAND;
+        const diffCommand = Settings.getSetting("DIFF_COMMAND");
         const editProcess = spawn(diffCommand, [newFile, diffFile], {
           stdio: "inherit",
         });
@@ -105,7 +105,7 @@ export class GptRequest {
       // when streaming we don't get the number of tokens
       tokens = countTokens(request + gptResult.text);
     }
-    const cost = (tokens * settings.TOKEN_COST).toFixed(5);
+    const cost = tokens * Settings.getSetting("TOKEN_COST").toFixed(5);
     let response = gptResult.text;
     const currentTimestamp = new Date().toLocaleString();
     response = response.trim();
@@ -152,19 +152,19 @@ export class GptRequest {
   appendToLog(jsonLog: any) {
     // check if file exists, if not create it
     try {
-      fs.accessSync(settings.LOG_FILE);
+      fs.accessSync(Settings.getSetting("LOG_FILE"));
     } catch (e) {
-      fs.writeFileSync(settings.LOG_FILE, "[]");
+      fs.writeFileSync(Settings.getSetting("LOG_FILE"), "[]");
     }
     // read the file
-    const logFile = fs.readFileSync(settings.LOG_FILE, "utf8");
+    const logFile = fs.readFileSync(Settings.getSetting("LOG_FILE"), "utf8");
     // parse the file
     const logArray = JSON.parse(logFile);
     // append the new log
     logArray.push(jsonLog);
     // write the file
     fs.writeFileSync(
-      settings.LOG_FILE,
+      Settings.getSetting("LOG_FILE"),
       JSON.stringify(logArray, null, 2) + "\n"
     );
   }

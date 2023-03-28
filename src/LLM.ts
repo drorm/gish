@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as os from "os";
 import chalk from "chalk";
 import { countTokens } from "gptoken";
-import { settings } from "./settings.js";
+import { Settings } from "./settings.js";
 let API_KEY = null;
 if (process.env.OPENAI_API_KEY) {
   API_KEY = process.env.OPENAI_API_KEY;
@@ -36,7 +36,7 @@ const configuration = new Configuration({
 
 export class LLM {
   openai = new OpenAIApi(configuration);
-  model = settings.DEFAULT_MODEL;
+  model = Settings.getSetting("DEFAULT_MODEL");
   constructor() {}
 
   /**
