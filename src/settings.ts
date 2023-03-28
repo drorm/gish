@@ -2,7 +2,8 @@ import * as os from "os";
 import * as path from "path";
 import * as fs from "fs";
 const homeDir = os.homedir();
-const configFile = path.join(homeDir, ".gish/config.json");
+const gishHome = path.join(homeDir, ".gish");
+const settingsFile = path.join(gishHome, "settings.json");
 
 /**
  * @class Settings
@@ -14,7 +15,7 @@ export class Settings {
   public static DIFF_COMMAND = "vimdiff";
   // Directory where we put files with chatgpt response
   public static GEN_DIR = "gen";
-  public static LOG_FILE = path.join(homeDir, `.gish.json`);
+  public static LOG_FILE = path.join(gishHome, `history.json`);
   public static TOKEN_COST = 0.002 / 1000; // per https://openai.com/pricing
   public static DEFAULT_EDITOR = "vim";
   public static DEFAULT_MODEL = "gpt-3.5-turbo";
@@ -27,13 +28,13 @@ export class Settings {
    * If the user settings file does not exist, we create it and initialize it with the default values
    */
   constructor() {
-    if (fs.existsSync(configFile)) {
-      const config = JSON.parse(fs.readFileSync(configFile).toString());
-      Object.assign(Settings, config);
+    if (fs.existsSync(settingsFile)) {
+      const settings = JSON.parse(fs.readFileSync(settingsFile).toString());
+      Object.assign(Settings, settings);
     } else {
       fs.mkdirSync(path.join(homeDir, ".gish"), { recursive: true });
       const userSettings = JSON.stringify({ ...Settings }, null, 2);
-      fs.writeFileSync(configFile, `${userSettings} ${os.EOL}`);
+      fs.writeFileSync(settingsFile, `${userSettings} ${os.EOL}`);
     }
   }
 
