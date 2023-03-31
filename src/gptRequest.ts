@@ -9,7 +9,7 @@ import * as tty from "node:tty";
 
 import { saveFiles } from "./saveFiles.js";
 import { Settings } from "./settings.js";
-import { LLM } from "./LLM.js";
+import { LLM, message } from "./LLM.js";
 
 const gpt = new LLM();
 
@@ -95,11 +95,17 @@ export class GptRequest {
   async fetch(request: string, useSpinner: boolean) {
     let spinner = null;
     const stream = this.options.stream;
+    let messages: Array<message> = [];
     if (useSpinner) {
       spinner = ora("Waiting for GPT").start();
     }
     const start = new Date().getTime();
-    const gptResult = await gpt.fetch(request, this.options, spinner);
+    // Checking if chat option is set
+    if (this.options.chat) {
+      messages = this.getPrviousRequests();
+    }
+    messages.push({ role: "user", content: request });
+    const gptResult = await gpt.fetch(messages, this.options, spinner);
     let tokens = gptResult.tokens;
     if (tokens === 0) {
       // when streaming we don't get the number of tokens
@@ -131,9 +137,9 @@ export class GptRequest {
       console.log(chalk.blue(stats));
     }
 
+    messages.push({ role: "assistant", content: response });
     const jsonLog = {
-      request: request,
-      response: response,
+      messages: messages,
       time: currentTimestamp,
       tokens: tokens,
       cost: cost,
@@ -167,6 +173,30 @@ export class GptRequest {
       Settings.getSetting("LOG_FILE"),
       JSON.stringify(logArray, null, 2) + "\n"
     );
+  }
+
+  /**
+   * @method getPrviousRequests
+   * @description This method is used to fetch the previous requests from the log file
+   * @returns {Array} - This is an array of previous requests
+   */
+  getPrviousRequests() {
+    // Read LOG_FILE and fetch the last entry
+    const logContents = JSON.parse(
+      fs.readFileSync(Settings.getSetting("LOG_FILE"), "utf8")
+    );
+    /**
+     * logContents is an array of objects
+     * Each object has a messages property which is an array of objects
+     * We just need to grab the messages and return them
+     */
+
+    // get the previous chat message which is the last entry
+    const lastEntry = logContents.slice(-1);
+    if (lastEntry.length === 0) {
+      return [];
+    }
+    return lastEntry[0].messages;
   }
 
   error(message: string) {
