@@ -9,7 +9,7 @@ import * as tty from "node:tty";
 
 import { saveFiles } from "./saveFiles.js";
 import { Settings } from "./settings.js";
-import { LLM, message } from "./LLM.js";
+import { LLM, message, GptResult } from "./LLM.js";
 
 const gpt = new LLM();
 
@@ -105,7 +105,11 @@ export class GptRequest {
       messages = this.getPrviousRequests();
     }
     messages.push({ role: "user", content: request });
-    const gptResult = await gpt.fetch(messages, this.options, spinner);
+    const gptResult = (await gpt.fetch(
+      messages,
+      this.options,
+      spinner
+    )) as GptResult;
     let tokens = gptResult.tokens;
     if (tokens === 0) {
       // when streaming we don't get the number of tokens
