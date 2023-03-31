@@ -7,11 +7,20 @@ import chalk from "chalk";
 import { Settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
 
+const defaultPrompt = "> ";
+const chatPrompt = "Chat > ";
+
 export class Interactive {
   rl: any;
   histPath: string = "";
   pr: string = chalk.blue("> ");
   options: any = {};
+  completer = (line: string) => {
+    const completions = ["history", "help", "chat"];
+    const hits = completions.filter((c) => c.startsWith(line));
+    // Show all completions if none found
+    return [hits.length ? hits : completions, line];
+  };
 
   constructor() {}
   /**
@@ -31,6 +40,7 @@ export class Interactive {
       historyLines = savedLines.split("\n").reverse();
     }
 
+    const completer = this.completer;
     this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -41,8 +51,7 @@ export class Interactive {
     });
 
     this.rl.on("close", () => {
-      console.log("Goodbye!");
-      process.exit(0);
+      this.exit();
     });
 
     this.chat();
@@ -89,11 +98,48 @@ export class Interactive {
     }
     const command = args[0];
     fs.appendFileSync(this.histPath, `${line}\n`);
-    await this.submitChat("ask", args);
+
+    switch (command) {
+      case "help":
+        this.showHelp();
+        break;
+      case "chat":
+        this.options.chat = 1;
+        this.rl.setPrompt(chatPrompt);
+        await this.submitChat("chat", args);
+        break;
+      case "exit":
+        if (this.options.chat) {
+          delete this.options.chat;
+          // out of chat mode, back to default mode
+          this.rl.setPrompt(defaultPrompt);
+        } else {
+          this.exit();
+        }
+        break;
+      default:
+        args.unshift("ask");
+        await this.submitChat("ask", args);
+        break;
+    }
   }
 
   async submitChat(type: string, args: string[]) {
     const gptRequest = new GptRequest();
     await gptRequest.submitChat(type, args, this.options, false);
+  }
+
+  showHelp() {
+    console.log(
+      `Available commands: help, chat, exit.
+      help: show this help
+      chat: start a chat session -- include the previous request and response in the new request
+      exit: in chat mode, exit chat mode.  In default mode, exit the program`
+    );
+  }
+
+  exit() {
+    console.log("Goodbye!");
+    process.exit(0);
   }
 }
