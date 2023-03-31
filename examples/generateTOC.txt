@@ -1,0 +1,3 @@
+In the following README.md update the table of contents to reflect changes to the file.
+
+#diff ~/work/gish/README.md
