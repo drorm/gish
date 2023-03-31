@@ -1,0 +1,8 @@
+# Generate unit tests for the LLM.ts file
+The following code interfaces with opeanai gpt API. 
+#import ../src/LLM.ts
+
+This is a unit test for it. 
+#diff ../test/LLM.spec.ts
+
+Create a new version with multiple unit tests
