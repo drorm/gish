@@ -48,6 +48,10 @@ export class Gish {
 
     `;
     program
+      .option(
+        "-c --chat",
+        "Treat as a chat with the number of previous requests. Default 1."
+      )
       .option("-d --diff <file>", "diff the generated output with this file")
       .option(
         "-e --edit [file]",
