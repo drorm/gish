@@ -1,0 +1,12 @@
+# Error handling
+#import ~/work/gish/test/saveFile.spec.ts
+
+The above code generates the following error:
+
+
+r: Cannot assign to read only property 'blue' of function '(...arguments_) => chalkTag(chalk.template, ...arguments_)'
+
+      at Object.restore (node_modules/jest-mock/build/index.js:786:35)
+                at Set.forEach (<anonymous>)
+
+Suggest a fix
