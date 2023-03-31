@@ -11,6 +11,11 @@ export interface message {
   content: string;
 }
 
+export interface GptResult {
+  text: string;
+  tokens: number;
+}
+
 let API_KEY = null;
 if (process.env.OPENAI_API_KEY) {
   API_KEY = process.env.OPENAI_API_KEY;
@@ -96,7 +101,7 @@ export class LLM {
       } else {
         console.error(error.message);
       }
-      return error;
+      return { text: "Error:" + error.message, tokens: 0 };
     }
   }
   /**
@@ -197,7 +202,11 @@ export class LLM {
         } else {
           console.error("An error occurred during OpenAI request", error);
         }
-        resolve(""); // Intentionally resolve with empty string, rather than reject
+        if (spinner) {
+          spinner.stop(); // starting to see a response, so stop the spinner
+        }
+        resolve({ text: "Error:" + error.message, tokens: 0 });
+        // Intentionally resolve with empty string, rather than reject
       }
     });
   }
