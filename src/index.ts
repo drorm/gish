@@ -50,7 +50,7 @@ export class Gish {
     program
       .option(
         "-c --chat",
-        "Treat as a chat with the number of previous requests. Default 1."
+        "Treat as a chat with the number of previous requests."
       )
       .option("-d --diff <file>", "diff the generated output with this file")
       .option(
