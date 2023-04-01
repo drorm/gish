@@ -115,7 +115,11 @@ export class GptRequest {
       // when streaming we don't get the number of tokens
       tokens = countTokens(request + gptResult.text);
     }
-    const cost = tokens * Settings.getSetting("TOKEN_COST").toFixed(5);
+
+    let cost = "Cost only available for GPT-3.5-turbo";
+    if (!this.options.model || this.options.model === "gpt-3.5-turbo") {
+      cost = "$" + tokens * Settings.getSetting("TOKEN_COST").toFixed(6);
+    }
     let response = gptResult.text;
     const currentTimestamp = new Date().toLocaleString();
     response = response.trim();
@@ -130,7 +134,7 @@ export class GptRequest {
     if (this.options.stats) {
       let stats = "";
       if (tokens > 0) {
-        stats = `Tokens: ${tokens} Cost: $${cost} Elapsed: ${duration} Seconds`;
+        stats = `Tokens: ${tokens} Cost: ${cost} Elapsed: ${duration} Seconds`;
       } else {
         stats = `Elapsed: ${duration} Seconds`;
       }
