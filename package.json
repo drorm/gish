@@ -1,5 +1,5 @@
 {
-  "name": "gish",
+  "name": "gish-gpt",
   "version": "0.2.0",
   "main": "index.ts",
   "exports": "./dist/index.js",
