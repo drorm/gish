@@ -10,6 +10,7 @@ import * as tty from "node:tty";
 import { saveFiles } from "./saveFiles.js";
 import { Settings } from "./settings.js";
 import { LLM, message, GptResult } from "./LLM.js";
+import { LogFile } from "./logFile.js";
 
 const gpt = new LLM();
 
@@ -23,6 +24,7 @@ const gpt = new LLM();
 export class GptRequest {
   options: any = {};
   constructor() {}
+  logFile = new LogFile();
 
   /**
    * @method submitChat
@@ -102,7 +104,7 @@ export class GptRequest {
     const start = new Date().getTime();
     // Checking if chat option is set
     if (this.options.chat) {
-      messages = this.getPrviousRequests();
+      messages = this.logFile.getPrviousRequest();
     }
     messages.push({ role: "user", content: request });
     const gptResult = (await gpt.fetch(
@@ -153,58 +155,8 @@ export class GptRequest {
       cost: cost,
       duration: duration,
     };
-    this.appendToLog(jsonLog);
+    this.logFile.appendToLog(jsonLog);
     return response;
-  }
-
-  /**
-   * @method appendToLog
-   * @description This method is used to append a JSON object to a log file
-   * @param {object} jsonLog - This is the JSON object that is appended to the log file
-   * @returns {void}
-   */
-  appendToLog(jsonLog: any) {
-    // check if file exists, if not create it
-    try {
-      fs.accessSync(Settings.getSetting("LOG_FILE"));
-    } catch (e) {
-      fs.writeFileSync(Settings.getSetting("LOG_FILE"), "[]");
-    }
-    // read the file
-    const logFile = fs.readFileSync(Settings.getSetting("LOG_FILE"), "utf8");
-    // parse the file
-    const logArray = JSON.parse(logFile);
-    // append the new log
-    logArray.push(jsonLog);
-    // write the file
-    fs.writeFileSync(
-      Settings.getSetting("LOG_FILE"),
-      JSON.stringify(logArray, null, 2) + "\n"
-    );
-  }
-
-  /**
-   * @method getPrviousRequests
-   * @description This method is used to fetch the previous requests from the log file
-   * @returns {Array} - This is an array of previous requests
-   */
-  getPrviousRequests() {
-    // Read LOG_FILE and fetch the last entry
-    const logContents = JSON.parse(
-      fs.readFileSync(Settings.getSetting("LOG_FILE"), "utf8")
-    );
-    /**
-     * logContents is an array of objects
-     * Each object has a messages property which is an array of objects
-     * We just need to grab the messages and return them
-     */
-
-    // get the previous chat message which is the last entry
-    const lastEntry = logContents.slice(-1);
-    if (lastEntry.length === 0) {
-      return [];
-    }
-    return lastEntry[0].messages;
   }
 
   error(message: string) {

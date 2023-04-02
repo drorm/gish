@@ -34,6 +34,8 @@ export class Interactive {
     const histName = ".gptchat_hist";
     const homeDir = os.homedir();
     this.histPath = path.join(homeDir, histName);
+    // If we want to unify history between cli and interactive mode we can use this
+    // let historyLines = this.logFile.getHistory(10);
     let historyLines: string[] = [];
     if (fs.existsSync(this.histPath)) {
       const savedLines = fs.readFileSync(this.histPath, "utf8");
