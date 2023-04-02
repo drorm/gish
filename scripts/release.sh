@@ -36,3 +36,6 @@ scripts/tag.sh
 
 echo "Creating the version file..."
 scripts/version.sh
+
+echo "Committing and pushing the version file..."
+git commit src/version.ts
