@@ -164,13 +164,13 @@ export class LLM {
                 }
                 if (first && text.match(/^\s*$/)) {
                   // ignore the first empty line
-                  first = false;
                 } else {
                   // convert multiple newlines to a single newline
                   text = text.replace(/\n+/g, "\n");
                   process.stdout.write(chalk.green(text));
                   response += text;
                 }
+                first = false;
               }
             } catch (error) {
               console.error(
