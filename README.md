@@ -44,6 +44,19 @@ Gish offers the following features:
 
 ## Installation
 
+### Using npm
+
+```
+npx gish-gpt
+```
+
+or
+
+```
+npm install gish-gpt
+node_modules/.bin/gish
+```
+
 ### Download an executable
 
 1. Visit the [**Releases**](https://github.com/drorm/gish/releases) page of this repository.

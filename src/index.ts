@@ -11,6 +11,7 @@ import { program } from "commander";
 import { Settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
 import { Interactive } from "./interactive.js";
+import { vars } from "./version.js";
 
 const gptRequest = new GptRequest();
 const log = console.log;
@@ -73,6 +74,7 @@ export class Gish {
         "don't stream the result. Default is to stream, display results as they come in."
       )
       .option("--no-stats", "don't show stats. Default is to show stats.")
+      .option("-v --version", "Show the version number")
       .argument("[request]", "request to send to the bot") // optional argument
       .addHelpText("after", extraHelp);
     program.parse();
@@ -91,6 +93,11 @@ export class Gish {
       !(this.options.input || this.options.edit || piped.length > 0)
     ) {
       this.isInteractive = true;
+    }
+
+    if (this.options.version) {
+      console.log(vars.version);
+      process.exit(0);
     }
 
     // priority, similar to linux commands like cat and echo:
