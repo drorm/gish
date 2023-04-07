@@ -58,6 +58,10 @@ export class Gish {
         "-e --edit [file]",
         "edit a file and send it to the bot. If no file specified, create a temp file."
       )
+      .option(
+        "-g --generate [directory]",
+        "Save any output enclosed in ``` to a file in this wirectory, default '.'"
+      )
       .option("-i --input <file>", "send the request from the file")
       .option("-m --model <name>", "specify the model to use")
       .option("-p --prompt <file>", "send the prompt from the file")

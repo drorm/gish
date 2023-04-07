@@ -11,6 +11,7 @@ import { saveFiles } from "./saveFiles.js";
 import { Settings } from "./settings.js";
 import { LLM, message, GptResult } from "./LLM.js";
 import { LogFile } from "./logFile.js";
+import { generateFiles } from "./generateFiles.js";
 
 const gpt = new LLM();
 
@@ -84,6 +85,10 @@ export class GptRequest {
           stdio: "inherit",
         });
       }
+    }
+
+    if (this.options.generate) {
+      generateFiles(response, this.options.generate);
     }
   }
 
