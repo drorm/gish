@@ -7,7 +7,8 @@
     "target": "ES2020",
     "esModuleInterop": true,
     "baseUrl": "./src",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "./dist"
   },
   "include": ["src/*.ts"]
 }
