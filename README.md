@@ -4,6 +4,7 @@
 
 - [Features](#features)
 - [Installation](#installation)
+  - [Using npm](#using-npm)
   - [Download an executable](download-an-executable)
   - [From source](#from-source)
 - [Usage](#usage)
@@ -28,6 +29,7 @@ Gish is a command-line interface(CLI) that interacts with OpenAI GPT following U
 Gish offers the following features:
 
 - Command line, piped, or interactive mode that allows users to easily interact with the application
+- Generate a full application with a single request!
 - Integration of files into prompts using the `#import` statement
 - Diff-ing generated files with the original using the `#diff` statement or the `-d` flag
 - A local history containing user prompts and responses for easy reference and modification
@@ -133,6 +135,7 @@ tell me a joke
 - `gish -s foo.ts` saves the output to foo.ts. When generating code, the user needs to use a prompt that generates the appropriate output. See prompts/coding for an example.
 - `gish -d foo.ts` diff the result with this file. Requires -s.
 - `gish -c` activates the chat mode and refers to the previous request. See the chat section for more details.
+- `gish -g` Generates multiple files to create a full application. See the generate section for more details.
 
 #### CLI Chat mode
 
@@ -215,6 +218,30 @@ In the following file, document the code better
 ```
 
 This process is similar to `#import`, but also lets the app know that the user is modifying the file. Once the code is generated, the diff command defined in `settings.ts` is launched on the original and generated files. **For complex changes, Copilot might work better.**
+
+### Generate: generate multiple files, possibly a full application
+
+With the appropriate prompt such as [Web application] (tasks/webapp.txt), you can get the LLM, GPT-4 is recommended for this, but experiment and see what works for you.
+Simply creating an input file
+
+```
+#import tasks/webapp.txt
+
+Generate Conway's game of life.
+Include on the page, the instructions on how to play the game.
+```
+
+and then running
+
+```
+gish -m gpt-4 -g life -i /input
+```
+
+Resulted in the game of life
+
+```warn
+Be aware that using this approach it's easy to use many tokens, specifically with GPT-4, so the costs can add up.
+```
 
 ### Examples
 
