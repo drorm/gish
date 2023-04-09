@@ -1,0 +1,29 @@
+Generate the html, css, javascript files for a web app.
+For each file include in the opening triple backticks the name of the file, for instance: ```index.html.
+Make sure to include in the HTML and links to the appropriate CSS or js files.
+Any comments should be in a README.md file.
+Example:
+```index.html
+<html>
+<head>
+    <title>Hello World</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <script src="app.js"></script>
+</body>
+</html>
+```
+```style.css
+body {
+    text-align: center;
+}
+```
+```app.js
+console.log("Hello World!");
+```
+```README.md
+# Hello World
+This is a simple web app that prints "Hello World!" to the console.
+```
+------------------------------
