@@ -1,4 +1,4 @@
-#import ~/work/gish/tasks/webapp.txt
+#import tasks/webapp.txt
 
 Generate Conway's game of life.
 Include on the page, the instructions on how to play the game.

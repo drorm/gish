@@ -1,4 +1,4 @@
-#import ~/work/gish/tasks/nodejs.txt
+#import tasks/nodejs.txt
 
 Following the above instructions, Create a typescript project to count the
 number of lines, words and characters in a file.  

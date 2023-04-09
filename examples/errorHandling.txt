@@ -1,5 +1,5 @@
 # Error handling
-#import ~/work/gish/test/saveFile.spec.ts
+#import test/saveFile.spec.ts
 
 The above code generates the following error:
 
