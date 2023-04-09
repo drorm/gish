@@ -1,4 +1,4 @@
-#import ~/work/gish/tasks/coding.txt
+#import tasks/coding.txt
 
 The following file settings.ts describes the settings of gish a CLI for interacting with GPT.
 
@@ -7,5 +7,5 @@ Change it so that it provides a method to get a setting.
 2. If it does, it loads the file and uses the settings in it to override the default settings
 3. If it does not, it creates the file and uses the default settings
 
-#diff ~/work/gish/src/settings.ts
+#diff src/settings.ts
 

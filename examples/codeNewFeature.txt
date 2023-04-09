@@ -1,5 +1,5 @@
 # Improve gish to suppprt chat history
-#import ~/work/gish/tasks/coding.txt
+#import tasks/coding.txt
 
 In the following code we save the request to 
 Change the following code so that instead of handling a single string as a query, it handles an array of objects with this structure:
@@ -12,4 +12,4 @@ This will allow us to provide a history of queries and responses.
 
 This should work in both streaming and non-streaming mode.
 
-#diff ~/work/gish/src/gptRequest.ts
+#diff src/gptRequest.ts

@@ -1,3 +1,4 @@
+# example useful aliases
 alias gpt4 gish -m gpt-4
 alias chat gish -c
 alias commit tasks/gitcommit.sh
