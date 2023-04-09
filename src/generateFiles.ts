@@ -6,9 +6,9 @@ import path from "path";
 export function generateFiles(text: string, directory: string = "."): void {
   // Check if directory exists, if not create it
   if (!fs.existsSync(directory)) {
-    fs.mkdirSync(directory);
+    fs.mkdirSync(directory, { recursive: true });
   }
-  const codeBlockRegex = /```([\s\S]*?)\n([\s\S]*?)```/g;
+  const codeBlockRegex = /(?:^|\n)```([\s\S]*?)[\r?\n ]+([\s\S]*?)\n```/g;
   let match;
   while ((match = codeBlockRegex.exec(text)) !== null) {
     const fileName = match[1].trim();
@@ -17,8 +17,14 @@ export function generateFiles(text: string, directory: string = "."): void {
     if (!isValidFileName(fileName)) {
       throw new Error(`Invalid file name: ${fileName}`);
     }
+    // Create directory structure for the file
+    const filePath = path.join(directory, fileName);
+    const fileDir = path.dirname(filePath);
+    if (!fs.existsSync(fileDir)) {
+      fs.mkdirSync(fileDir, { recursive: true });
+    }
     // Create the file with its content
-    fs.writeFileSync(path.join(directory, fileName), fileContent);
+    fs.writeFileSync(filePath, `${fileContent}\n`);
   }
 }
 /**
@@ -26,12 +32,12 @@ export function generateFiles(text: string, directory: string = "."): void {
  */
 function isValidFileName(fileName: string): boolean {
   const validFileNameRegex =
-    /^(?!^\.$)(?!^\.{2}$)^(?=.{1,254}$)(?:(?!\. |^ | $|  | \\. | .{255,}| [.-]$)[a-zA-Z0-9 ._-])*(?<! -)$/;
+    /^(?!^\.$)(?!^\.{2}$)^(?=.{1,254}$)(?:(?!\. |^ | $|  | \\. | .{255,}| [.-]$)[a-zA-Z0-9 ._-])*([a-zA-Z0-9_/.-])*(?<! -)$/;
   return validFileNameRegex.test(fileName);
 }
 // Test example: Call the function with the given text input
 const text = `
-\`\`\`index.html
+\`\`\`src/index.html
 <html>
 <head>
     <title>Hello World</title>
@@ -42,17 +48,22 @@ const text = `
 </body>
 </html>
 \`\`\`
-\`\`\`style.css
+\`\`\`src/style.css
 body {
     text-align: center;
 }
 \`\`\`
-\`\`\`app.js
+\`\`\`src/app.js
 console.log("Hello World!");
 \`\`\`
 \`\`\`README.md
 # Hello World
 This is a simple web app that prints "Hello World!" to the console.
+To run it simply run:
+   \`\`\`
+   node app.js
+   \`\`\`
+And that's all.
 \`\`\`
 `;
 generateFiles(text, "./output"); // <--- output directory
