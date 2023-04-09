@@ -1,0 +1,27 @@
+Generate the package.json, index.html and other necessary files for a node.js project.
+For each file include in the opening triple backticks the name of the file, for instance: ```index.js.
+Any comments should be in a README.md file.
+Once these files are saved, I should be able to run npm install and npm start and the project should run.
+Note that if you include a markdown ``` section, you need to indent them 
+    ```
+so that it doesn't close the README.md file..
+------------------------------
+Example:
+```index.js
+...
+```package.json
+...
+...
+```README.md
+Here's some code in a markdown section:
+1. Install the dependencies
+   ```
+   npm install
+   ```
+2 Her's some javascript code:
+   ```
+   console.log('hello world');
+   ```
+...
+------------------------------
+
