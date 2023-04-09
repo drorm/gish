@@ -2,10 +2,6 @@
 
 # Table of Contents
 
-# gish
-
-# Table of Contents
-
 - [Features](#features)
 - [Installation](#installation)
   - [Using npm](#using-npm)
