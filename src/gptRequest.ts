@@ -125,7 +125,7 @@ export class GptRequest {
 
     let cost = "Cost only available for GPT-3.5-turbo";
     if (!this.options.model || this.options.model === "gpt-3.5-turbo") {
-      cost = "$" + tokens * Settings.getSetting("TOKEN_COST").toFixed(6);
+      cost = "$" + (tokens * Settings.getSetting("TOKEN_COST")).toFixed(5);
     }
     let response = gptResult.text;
     const currentTimestamp = new Date().toLocaleString();
