@@ -5,7 +5,8 @@ import { Utils } from "./utils.js";
 /**
  * Handle #import statements.
  * Give a string, look for "#import" or "#diff" statements.
- * #import file: actls like #import or #include file, by replacing the statement with the contents of a file
+ * #import file: acts like #import or #include file, by replacing the statement with the contents of a file
+ * '#' in the beginning of a line is a comment
  * #diff does the same but also provides a hint that the result of the request, will need to go into this file
  */
 export function importFiles(content: string): [boolean, string, string[]] {
@@ -48,7 +49,12 @@ export function importFiles(content: string): [boolean, string, string[]] {
         return [false, `#import file ${filePath} was not found`, toDiffFiles];
       }
     } else {
-      // If the line is not an #import or #diff statement, add it to the modified lines list as is
+      // Check if the line is a comment
+      if (line.trim().startsWith("#")) {
+        // If it is, ignore the line and continue with the next line
+        continue;
+      }
+      // If the line is not an #import or #diff or a comment, add it to the modified lines list as is
       modifiedLines.push(line);
     }
   }

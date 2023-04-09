@@ -239,11 +239,11 @@ and then running
 gish -m gpt-4 -g life -i /input
 ```
 
-Resulted in the game of life
+Resulted in the game of life in the "life" directory.
 
-```warn
-Be aware that using this approach it's easy to use many tokens, specifically with GPT-4, so the costs can add up.
-```
+> **Warning**
+>
+> Be aware that using this approach it's easy to use many tokens, specifically with GPT-4, so the costs can add up.
 
 ### Examples
 
