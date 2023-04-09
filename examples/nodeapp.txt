@@ -1,0 +1,6 @@
+#import ~/work/gish/tasks/nodejs.txt
+
+Following the above instructions, Create a typescript project to count the
+number of lines, words and characters in a file.  
+It's output should be identical to the output of the wc command, 
+It should handle multiple files on the command line.
