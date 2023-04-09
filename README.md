@@ -2,10 +2,14 @@
 
 # Table of Contents
 
+# gish
+
+# Table of Contents
+
 - [Features](#features)
 - [Installation](#installation)
   - [Using npm](#using-npm)
-  - [Download an executable](download-an-executable)
+  - [Download an executable](#download-an-executable)
   - [From source](#from-source)
 - [Usage](#usage)
   - [Modes](#modes)
@@ -18,8 +22,10 @@
     - [Interactive Chat mode](#interactive-chat-mode)
   - [#Import](#import)
   - [#Diff: Changing and Diffing a File](#diff-changing-and-diffing-a-file)
+  - [Generate multiple files](#generate-multiple-files)
   - [Examples](#examples)
   - [Log File](#log-file)
+  - [Priority](#priority)
   - [Stats](#stats)
 
 Gish is a command-line interface(CLI) that interacts with OpenAI GPT following Unix conventions and offering a rich set of features via flags. It is important to note that a paid OpenAI account and API key are required to use Gish.
@@ -219,7 +225,7 @@ In the following file, document the code better
 
 This process is similar to `#import`, but also lets the app know that the user is modifying the file. Once the code is generated, the diff command defined in `settings.ts` is launched on the original and generated files. **For complex changes, Copilot might work better.**
 
-### Generate: generate multiple files, possibly a full application
+### Generate multiple files
 
 With the appropriate prompt such as [Web application] (tasks/webapp.txt), you can get the LLM, GPT-4 is recommended for this, but experiment and see what works for you.
 Simply creating an input file
