@@ -1,6 +1,6 @@
 {
   "name": "gish-gpt",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "index.ts",
   "exports": "./dist/index.js",
   "type": "module",
@@ -13,7 +13,8 @@
     "build": "tsc -p tsconfig.json; chmod 700 dist/index.js",
     "test": "jest",
     "esb": "esbuild ./src --bundle --platform=node --outfile=dist/gish.js",
-    "pkg": "pkg dist/gish.js -t node18-linux-x64,node18-macos-x64,node18-win-x64 --out-dir releases/"
+    "pkg": "pkg dist/gish.js -t node18-linux-x64,node18-macos-x64,node18-win-x64 --out-dir releases/",
+    "bundle": "npm run build && npm run esb && npm run pkg && ls -l releases/"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
