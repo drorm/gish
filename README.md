@@ -13,6 +13,7 @@
     - [Piped](#piped)
     - [Interactive Mode](#interactive-mode)
   - [Command Line Usage](#command-line-usage)
+    - [CLI History](#cli-history)
     - [CLI Chat mode](#cli-chat-mode)
   - [Interactive Mode](#interactive-mode-1)
     - [Interactive Chat mode](#interactive-chat-mode)
@@ -131,13 +132,18 @@ tell me a joke
 - `gish "what is the population of San Francisco?".` You need the quotes to avoid shell errors.
 - `gish -e` puts you in your editor and sends the content when you're done. To abort, either don't create the file or empty it
 - `gish -e foo.txt` does the same but operates on an existing file.
+- `gish -h [num]` shows you the history. Num is optional and defaults to 20.
 - `gish -i foo` sends the content of foo. Equivalent to `cat foo | gish`.
 - `gish -m gpt-4` specifies the model
 - `gish -p foo` uses foo as a prompt in a chat. Other flags or arguments are used to pass the actual request but this is the background. See https://platform.openai.com/docs/guides/chat. Gish sets this prompt as the first in the chat with the role of "assistant".
 - `gish -s foo.ts` saves the output to foo.ts. When generating code, the user needs to use a prompt that generates the appropriate output. See prompts/coding for an example.
 - `gish -d foo.ts` diff the result with this file. Requires -s.
-- `gish -c` activates the chat mode and refers to the previous request. See the chat section for more details.
+- `gish -c [num]` activates the chat mode and refers to the num request, defaults to the previous one. See the chat section for more details.
 - `gish -g` Generates multiple files to create a full application. See the generate section for more details.
+
+#### CLI History
+
+As in your shell -h or --history shows the history of your requests. The optional **num** param specifies the number of elements. The defaults is 20.
 
 #### CLI Chat mode
 
@@ -150,12 +156,31 @@ The capital of Japan is Tokyo.
 The estimated population of Tokyo, Japan as of2021 is approximately 13.9 million people.
 ```
 
+Using the history feature, you can see the position of requests in the history and pass them in the -c parameter.
+
+```bash
+# gish tell me a joke
+Why did the tomato turn red? Because it saw the salad dressing!
+# gish tell me a one line story
+She found love in the most unexpected place.
+# gish -h 2
+892: tell me a joke
+893: tell me a one line story
+# gish -c 892 another
+Why did the bicycle fall over? Because it was two-tired!
+
+```
+
 ### Interactive Mode
 
 - Interactive mode lets you type requests directly one after the other.
 - You don't need to worry about escaping special characters
 - Supports CTRL-P, CTRL-N and other [GNU readline] (https://en.wikipedia.org/wiki/GNU_Readline) shortcuts.
 - Type `chat` and the request to enter chat mode. Type exit to leave chat mode.
+
+#### Interactive History
+
+Type **history** with an optional number to view the history. The default is 20.
 
 #### Interactive Chat mode
 
@@ -175,6 +200,12 @@ Chat > exit
 
 - Notice how the prompt changes in chat mode.
 - Since the last question is not in chat mode, GPT doesn't answer about conversion.
+- Chat defaults to the previous request, but you can also use earlier requests. 
+  - Use history to find the position of earlier requests.
+  - Pass the request positing as an argument to chat as in the following example.
+```
+chat 876 another
+```
 
 ### #Import
 
@@ -242,9 +273,8 @@ gish -m gpt-4 -g life -i /input
 Resulted in the game of life in the "life" directory.
 
 > **Warning**
-> 
-> Be aware that using this approach it's easy to use many tokens, specifically with GPT-4, so the costs can add up. 
-
+>
+> Be aware that using this approach it's easy to use many tokens, specifically with GPT-4, so the costs can add up.
 
 ### Examples
 
