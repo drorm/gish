@@ -12,6 +12,7 @@ import { Settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
 import { Interactive } from "./interactive.js";
 import { vars } from "./version.js";
+import { LogFile } from "./logFile.js";
 
 const gptRequest = new GptRequest();
 const log = console.log;
@@ -28,6 +29,7 @@ export class Gish {
   homeDir: string = "";
   isInteractive: boolean = false;
   options: any = {};
+  logFile = new LogFile();
 
   constructor() {}
 
@@ -50,8 +52,8 @@ export class Gish {
     `;
     program
       .option(
-        "-c --chat",
-        "Treat as a chat with the number of previous requests."
+        "-c --chat [number]",
+        "Treat as a chat. Default 1: previous request. use history to see previous requests numbers."
       )
       .option("-d --diff <file>", "diff the generated output with this file")
       .option(
@@ -60,7 +62,11 @@ export class Gish {
       )
       .option(
         "-g --generate [directory]",
-        "Save any output enclosed in ``` to a file in this wirectory, default '.'"
+        "Save any output enclosed in ``` to a file in this directory, default '.'"
+      )
+      .option(
+        "-h --history [number]",
+        "show the history in reverse order. Default number is 20."
       )
       .option("-i --input <file>", "send the request from the file")
       .option("-m --model <name>", "specify the model to use")
@@ -94,7 +100,12 @@ export class Gish {
     // check to see if there are any options or data
     if (
       Object.keys(args).length === 0 &&
-      !(this.options.input || this.options.edit || piped.length > 0)
+      !(
+        this.options.input ||
+        this.options.edit ||
+        this.options.chat ||
+        piped.length > 0
+      )
     ) {
       this.isInteractive = true;
     }
@@ -104,6 +115,22 @@ export class Gish {
       process.exit(0);
     }
 
+    if (this.options.history) {
+      this.logFile.showHistory(this.options);
+      process.exit(0);
+    }
+
+    if (this.options.chat) {
+      if (isNaN(this.options.chat)) {
+        // hack to stay backward compatible. If the argument is not a number, it's the beginning of the request
+        // so we need to insert it as the first argument
+        this.options.chat = -1;
+        args.unshift(this.options.chat);
+      }
+      if (this.options.chat === "true") {
+        this.options.chat = -1;
+      }
+    }
     // priority, similar to linux commands like cat and echo:
     // 1. command line args: gish "What is the population of the city of London?"
     // 2. piped input: echo "What is the population of the city of London?" | gish
@@ -165,11 +192,9 @@ export class Gish {
     }
     // we got a file name
     // launch an editor on the file. Let's see if we can get the editor from the environment
-    console.log("editor: ", process.env.EDITOR);
     const editor = process.env.EDITOR
       ? process.env.EDITOR
       : Settings.getSetting("DEFAULT_EDITOR");
-    console.log("editor: ", editor);
     const result = await this.runEditor(editor, filePath);
     if (result === "") {
       args.push("input"); // to be consistent with the interactive mode

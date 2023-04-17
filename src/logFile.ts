@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import chalk from "chalk";
 
 import { Settings } from "./settings.js";
 
@@ -30,11 +31,11 @@ export class LogFile {
   }
 
   /**
-   * @method getPrviousRequests
-   * @description This method is used to fetch the previous requests from the log file
+   * @method getPreviousRequest
+   * @description This method is used to fetch a previous request from the log file
    * @returns {Array} - This is an array of previous requests
    */
-  getPrviousRequest() {
+  getPreviousRequest(num: number) {
     // Read LOG_FILE and fetch the last entry
     const logContents = JSON.parse(
       fs.readFileSync(Settings.getSetting("LOG_FILE"), "utf8")
@@ -45,12 +46,20 @@ export class LogFile {
      * We just need to grab the messages and return them
      */
 
-    // get the previous chat message which is the last entry
-    const lastEntry = logContents.slice(-1);
-    if (lastEntry.length === 0) {
-      return [];
+    // get the previous chat message
+    if (num > logContents.length) {
+      console.log(
+        chalk.red(
+          `Invalid number param for chat: ${num}. Only ${logContents.length} entries in log file.`
+        )
+      );
+      process.exit(0); // Can't really do anything else
     }
-    return lastEntry[0].messages;
+    if (num < 0) {
+      num = logContents.length + num;
+    }
+    const previouChat = logContents.slice(num, num + 1);
+    return previouChat[0].messages;
   }
 
   /**
@@ -71,14 +80,20 @@ export class LogFile {
      */
 
     // get the previous chat message which is the last entry
-    const entries = logContents.slice(-1 * num);
+    let entries = logContents;
+    if (num < logContents.length) {
+      entries = logContents.slice(-1 * num);
+    }
     if (entries === 0) {
-      return [];
+      return [[], 0];
     }
     let historyLines: any = [];
     for (let i = 0; i < entries.length; i++) {
       const request = entries[i];
       const messages = request.messages;
+      if (messages === undefined) {
+        continue;
+      }
       // now let's get the text of the last message where of the "content" field where role = "user"
       let historyEntry = "";
       for (let j = 0; j < messages.length; j++) {
@@ -89,11 +104,35 @@ export class LogFile {
       }
       if (historyEntry !== "") {
         historyEntry = historyEntry.slice(0, 100);
-        console.log(i, historyEntry);
         historyLines.push(historyEntry);
       }
     }
     // console.log(historyLines);
-    return historyLines;
+    return [historyLines, logContents.length];
+  }
+
+  /**
+   * @method showHistory
+   * @description Show the history of requests from the log file in reverse order
+   * @param {object} options - Options object with the number of previous requests to fetch
+   * @returns {void}
+   */
+  showHistory(options: any) {
+    if (options.history === true) {
+      options.history = 20;
+      // check if it's a number
+    } else if (isNaN(options.history)) {
+      console.log(
+        chalk.red("Invalid number param for history: " + options.history)
+      );
+      process.exit(0); // Can't really do anything else
+    }
+    // gethistory returns an array of strings and the position of the last entry
+    const [history, position] = this.getHistory(options.history);
+    history.reverse();
+    // show the history
+    for (let i = history.length; i > 0; i--) {
+      console.log(chalk.green(`${position - i}: ${history[i - 1]}`));
+    }
   }
 }

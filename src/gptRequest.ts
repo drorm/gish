@@ -109,7 +109,7 @@ export class GptRequest {
     const start = new Date().getTime();
     // Checking if chat option is set
     if (this.options.chat) {
-      messages = this.logFile.getPrviousRequest();
+      messages = this.logFile.getPreviousRequest(this.options.chat);
     }
     messages.push({ role: "user", content: request });
     const gptResult = (await gpt.fetch(
