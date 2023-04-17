@@ -124,8 +124,8 @@ export class Gish {
       if (isNaN(this.options.chat)) {
         // hack to stay backward compatible. If the argument is not a number, it's the beginning of the request
         // so we need to insert it as the first argument
-        this.options.chat = -1;
         args.unshift(this.options.chat);
+        this.options.chat = -1;
       }
       if (this.options.chat === "true") {
         this.options.chat = -1;
