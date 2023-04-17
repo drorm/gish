@@ -125,7 +125,7 @@ export class LogFile {
       console.log(
         chalk.red("Invalid number param for history: " + options.history)
       );
-      process.exit(0); // Can't really do anything else
+      return; // Can't really do anything else
     }
     // gethistory returns an array of strings and the position of the last entry
     const [history, position] = this.getHistory(options.history);
