@@ -127,7 +127,7 @@ export class Gish {
         args.unshift(this.options.chat);
         this.options.chat = -1;
       }
-      if (this.options.chat === "true") {
+      if (this.options.chat === "true" || this.options.chat === true) {
         this.options.chat = -1;
       }
     }
