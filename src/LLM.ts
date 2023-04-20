@@ -58,6 +58,12 @@ export class LLM {
     if (options["model"]) {
       this.model = options["model"];
     }
+    let prompt = "";
+    if (options["prompt"]) {
+      prompt = options["prompt"];
+      const promptContent = fs.readFileSync(prompt, "utf8");
+      queries.unshift({ role: "system", content: promptContent });
+    }
     const stream = options["stream"];
     if (stream) {
       return await this.streamResponse(queries, options, spinner);
@@ -120,12 +126,6 @@ export class LLM {
       try {
         let response = "";
         const messages = queries;
-        let prompt = "";
-        if (options["prompt"]) {
-          prompt = options["prompt"];
-          const promptContent = fs.readFileSync(prompt, "utf8");
-          messages.push({ role: "system", content: promptContent });
-        }
         const res = await this.openai.createChatCompletion(
           {
             model: this.model,
