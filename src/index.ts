@@ -83,6 +83,10 @@ export class Gish {
         "--no-stream",
         "don't stream the result. Default is to stream, display results as they come in."
       )
+      .option(
+        "-x --extra <string>",
+        "Extra arguments to pass to gpt. Example: -x 'temperature=0.5:max_tokens=500'. See https://platform.openai.com/docs/api-reference/chat."
+      )
       .option("--no-stats", "don't show stats. Default is to show stats.")
       .option("-v --version", "Show the version number")
       .argument("[request]", "request to send to the bot") // optional argument

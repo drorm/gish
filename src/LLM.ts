@@ -64,16 +64,38 @@ export class LLM {
       const promptContent = fs.readFileSync(prompt, "utf8");
       queries.unshift({ role: "system", content: promptContent });
     }
-    const stream = options["stream"];
-    if (stream) {
-      return await this.streamResponse(queries, options, spinner);
+
+    let chatArgs = {
+      model: this.model,
+      messages: <any>queries,
+    };
+
+    if (options["extra"]) {
+      // convert the extra options to an object
+      // add the curly braces to make it a valid JSON object
+      try {
+        const extraJson = "{" + options["extra"] + "}";
+        const extra = JSON.parse(extraJson);
+        chatArgs = Object.assign(chatArgs, extra);
+      } catch (e: any) {
+        console.log(
+          chalk.red(
+            `\nerror while trying tp parse 'extra flag': ${e.message}\nremmember to use double quotes around all text elements like this: --extra '"max_tokens":10,"temperature":0.5'`
+          )
+        );
+        process.exit(0);
+      }
     }
+
+    const stream = options["stream"];
+
+    if (stream) {
+      return await this.streamResponse(queries, chatArgs, spinner);
+    }
+
     // non-streaming response
     try {
-      const completion = await this.openai.createChatCompletion({
-        model: this.model,
-        messages: <any>queries,
-      });
+      const completion = await this.openai.createChatCompletion(chatArgs);
       /*
        * data: {
        * id: 'cmpl-6XKRMiJZifNtJuP29w34AXw7ZfkX5',
@@ -116,7 +138,7 @@ export class LLM {
    * @param query
    * @example const result = await fetch('What is the population of the city of London?');
    */
-  async streamResponse(queries: Array<message>, options: any, spinner: any) {
+  async streamResponse(queries: Array<message>, chatArgs: any, spinner: any) {
     // return a promise with await that resolves to the response
     return new Promise(async (resolve, reject) => {
       // based on https://github.com/openai/openai-node/issues/18#issuecomment-1369996933
@@ -126,14 +148,10 @@ export class LLM {
       try {
         let response = "";
         const messages = queries;
-        const res = await this.openai.createChatCompletion(
-          {
-            model: this.model,
-            messages: <any>messages,
-            stream: true,
-          },
-          { responseType: "stream" }
-        );
+        chatArgs["stream"] = true;
+        const res = await this.openai.createChatCompletion(chatArgs, {
+          responseType: "stream",
+        });
         // tell typescript to ignore no 'on'
         // @ts-ignore
         res.data.on("data", (data: any) => {
