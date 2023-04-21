@@ -1,5 +1,5 @@
 export const vars = {
-   version: 'V0.3.0',
-   released: 'Sun Apr  9 12:23:25 PM PDT 2023'
+   version: 'V0.4',
+   released: 'Thu Apr 20 06:24:17 PM PDT 2023'
    };
 
