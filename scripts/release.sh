@@ -19,20 +19,17 @@ git co dev
 git diff
 git pull
  
-# Create the binaries
-echo "Creating binaries..."
-scripts/bundle.sh
-
-# Commit and push the binaries
-echo "Committing and pushing binaries..."
-git commit releases
-
 echo "Merging dev into main..."
 git co main 
 git merge dev
+
 
 echo "Tagging release..."
 scripts/tag.sh
 
 echo "Creating the version file..."
 scripts/version.sh
+
+# Create the binaries
+echo "Creating binaries..."
+scripts/bundle.sh
