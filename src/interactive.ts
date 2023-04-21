@@ -6,6 +6,7 @@ import chalk from "chalk";
 
 import { Settings } from "./settings.js";
 import { GptRequest } from "./gptRequest.js";
+import { LogFile } from "./logFile.js";
 
 const defaultPrompt = "> ";
 const chatPrompt = "Chat > ";
@@ -21,6 +22,7 @@ export class Interactive {
     // Show all completions if none found
     return [hits.length ? hits : completions, line];
   };
+  logFile = new LogFile();
 
   constructor() {}
   /**
@@ -105,8 +107,19 @@ export class Interactive {
       case "help":
         this.showHelp();
         break;
+      case "history":
+        if (args.length > 1) {
+          this.showHistory(args[1]);
+        } else {
+          this.showHistory("");
+        }
+        break;
       case "chat":
-        this.options.chat = 1;
+        if (args.length > 1) {
+          this.options.chat = args[1];
+        } else {
+          this.options.chat = 1;
+        }
         this.rl.setPrompt(chatPrompt);
         await this.submitChat("chat", args);
         break;
@@ -138,6 +151,20 @@ export class Interactive {
       chat: start a chat session -- include the previous request and response in the new request
       exit: in chat mode, exit chat mode.  In default mode, exit the program`
     );
+  }
+
+  /**
+   * @method showHistory
+   * @description This method is used to display the history of the user's requests
+   * @param num The number of requests to display
+   */
+  showHistory(num: string | boolean) {
+    if (num == "") {
+      num = true; // mimic the behavior of the readline module
+    }
+    const options = { history: num };
+    console.log("History:");
+    this.logFile.showHistory(options);
   }
 
   exit() {

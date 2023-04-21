@@ -65,6 +65,17 @@ export class GptRequest {
       return;
     }
     if (options["dryrun"]) {
+      if (options["prompt"]) {
+        console.log(
+          chalk.green("------------------ Prompt ------------------")
+        );
+        const prompt = options["prompt"];
+        const promptContent = fs.readFileSync(prompt, "utf8");
+        console.log(chalk.green(promptContent));
+        console.log(
+          chalk.green("------------------ End prompt ------------------")
+        );
+      }
       console.log(chalk.green(text));
       const estimateTokens = countTokens(text);
       console.log(chalk.blue(`Estimated request tokens: ${estimateTokens}`));
@@ -109,7 +120,7 @@ export class GptRequest {
     const start = new Date().getTime();
     // Checking if chat option is set
     if (this.options.chat) {
-      messages = this.logFile.getPrviousRequest();
+      messages = this.logFile.getPreviousRequest(this.options.chat);
     }
     messages.push({ role: "user", content: request });
     const gptResult = (await gpt.fetch(
