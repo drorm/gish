@@ -15,6 +15,7 @@
   - [Command Line Usage](#command-line-usage)
     - [CLI History](#cli-history)
     - [CLI Chat mode](#cli-chat-mode)
+    - [CLI Extra flags](#cli-extra-flags)
   - [Interactive Mode](#interactive-mode-1)
     - [Interactive Chat mode](#interactive-chat-mode)
   - [#Import](#import)
@@ -135,11 +136,12 @@ tell me a joke
 - `gish -h [num]` shows you the history. Num is optional and defaults to 20.
 - `gish -i foo` sends the content of foo. Equivalent to `cat foo | gish`.
 - `gish -m gpt-4` specifies the model
-- `gish -p foo` uses foo as a prompt in a chat. Other flags or arguments are used to pass the actual request but this is the background. See https://platform.openai.com/docs/guides/chat. Gish sets this prompt as the first in the chat with the role of "assistant".
+- `gish -p foo` uses foo as a prompt in a chat. Other flags or arguments are used to pass the actual request but this is the background. See https://platform.openai.com/docs/guides/chat. Gish sets this prompt as the first in the chat with the role of "system".
 - `gish -s foo.ts` saves the output to foo.ts. When generating code, the user needs to use a prompt that generates the appropriate output. See prompts/coding for an example.
 - `gish -d foo.ts` diff the result with this file. Requires -s.
 - `gish -c [num]` activates the chat mode and refers to the num request, defaults to the previous one. See the chat section for more details.
 - `gish -g` Generates multiple files to create a full application. See the generate section for more details.
+- `gish -x` Extra arguments to pass to gpt. Example: -x '"temperature"=0.5:"max_tokens"=500'.
 
 #### CLI History
 
@@ -170,12 +172,22 @@ She found love in the most unexpected place.
 Why did the bicycle fall over? Because it was two-tired!
 
 ```
+#### CLI Extra flag
+See the [chat API docs] (https://platform.openai.com/docs/api-reference/chat) for the list of flagas you can use. This feature is for advanced users, but the API will typically error if you pass it flags that are not supported.
+> **Warning**
+> the string you pass **needs** to be valid JSON. Specifically make sure that any string are enclosed in double quotes on both sides of the ':'. This is JSON, not javascript!
+Example:
+```
+# gish -x '"temperature":0.5,"max_tokens":5' tell me a joke
+Why did the tomato turn
+```
+Made it chop the response after 5 tokens.
 
 ### Interactive Mode
 
 - Interactive mode lets you type requests directly one after the other.
 - You don't need to worry about escaping special characters
-- Supports CTRL-P, CTRL-N and other [GNU readline] (https://en.wikipedia.org/wiki/GNU_Readline) shortcuts.
+- Supports CTRL-P, CTRL-N and other [GNU readline](https://en.wikipedia.org/wiki/GNU_Readline) shortcuts.
 - Type `chat` and the request to enter chat mode. Type exit to leave chat mode.
 
 #### Interactive History
