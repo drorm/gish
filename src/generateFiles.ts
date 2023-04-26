@@ -35,35 +35,3 @@ function isValidFileName(fileName: string): boolean {
     /^(?!^\.$)(?!^\.{2}$)^(?=.{1,254}$)(?:(?!\. |^ | $|  | \\. | .{255,}| [.-]$)[a-zA-Z0-9 ._-])*([a-zA-Z0-9_/.-])*(?<! -)$/;
   return validFileNameRegex.test(fileName);
 }
-// Test example: Call the function with the given text input
-const text = `
-\`\`\`src/index.html
-<html>
-<head>
-    <title>Hello World</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-    <script src="app.js"></script>
-</body>
-</html>
-\`\`\`
-\`\`\`src/style.css
-body {
-    text-align: center;
-}
-\`\`\`
-\`\`\`src/app.js
-console.log("Hello World!");
-\`\`\`
-\`\`\`README.md
-# Hello World
-This is a simple web app that prints "Hello World!" to the console.
-To run it simply run:
-   \`\`\`
-   node app.js
-   \`\`\`
-And that's all.
-\`\`\`
-`;
-generateFiles(text, "./output"); // <--- output directory
