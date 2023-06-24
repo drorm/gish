@@ -40,7 +40,7 @@ export class Gish {
    *  If there are no options, it starts the interactive mode
    * If there are options, it starts the command line mode
    */
-  async init() {
+  async init(): Promise<void> {
     new Settings();
     const extraHelp = `
     priority, similar to linux commands like cat and echo:
@@ -155,7 +155,7 @@ export class Gish {
    * @description This method is used to send a request to GPT-3 from the command line
    * @param args - the arguments, the actual request, passed to the command line
    */
-  async cli(args: string[]) {
+  async cli(args: string[]): Promise<void> {
     let request;
     if (this.options["input"]) {
       const filePath = path.normalize(this.options["input"]);
@@ -183,7 +183,7 @@ export class Gish {
    * @param args - the arguments passed to the command line
    * @returns {Promise<void>}
    */
-  async edit(args: string[]) {
+  async edit(args: string[]): Promise<void> {
     let filePath;
     if (this.options.edit === true) {
       // we'll need to generate a file name
@@ -215,7 +215,7 @@ export class Gish {
    * @param editor - the editor to run
    * @param filePath - the file to edit
    */
-  async runEditor(editor: string, filePath: string) {
+  async runEditor(editor: string, filePath: string): Promise<string> {
     return new Promise((resolve) => {
       const editProcess = spawn(editor, [filePath], { stdio: "inherit" });
       editProcess.on("exit", async (code) => {
@@ -249,7 +249,7 @@ export class Gish {
    * @example
    * echo "Hello world" | gptchat
    */
-  pipedInput() {
+  pipedInput(): string[] {
     // check to see if there is any piped input
     try {
       const data = fs.readFileSync(0, "utf-8"); // read input from stdin (file descriptor 0)
@@ -266,7 +266,7 @@ export class Gish {
     }
   }
 
-  async submitChat(type: string, args: string[]) {
+  async submitChat(type: string, args: string[]): Promise<void> {
     await gptRequest.submitChat(type, args, this.options);
   }
 }
