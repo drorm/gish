@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import * as fs from "fs";
 import * as os from "os";
 import chalk from "chalk";
@@ -16,7 +16,7 @@ export interface GptResult {
   tokens: number;
 }
 
-let API_KEY = null;
+let API_KEY: any = null;
 if (process.env.OPENAI_API_KEY) {
   API_KEY = process.env.OPENAI_API_KEY;
 } else {
@@ -37,15 +37,15 @@ if (!API_KEY) {
   );
   process.exit(1);
 }
-const configuration = new Configuration({
-  apiKey: API_KEY,
-});
+
 /**
  * The LLM, Long Language Model, class is the main class for the handling the requests to the OpenAI API.
  * It contains the fetch function that calls the OpenAI API.
  */
 export class LLM {
-  openai = new OpenAIApi(configuration);
+  openai = new OpenAI({
+    apiKey: API_KEY,
+  });
   model = Settings.getSetting("DEFAULT_MODEL");
   constructor() {}
   /**
@@ -95,7 +95,7 @@ export class LLM {
 
     // non-streaming response
     try {
-      const completion = await this.openai.createChatCompletion(chatArgs);
+      const completion = await this.openai.chat.completions.create(chatArgs);
       /*
        * data: {
        * id: 'cmpl-6XKRMiJZifNtJuP29w34AXw7ZfkX5',
@@ -106,9 +106,9 @@ export class LLM {
        * usage: { prompt_tokens: 254, completion_tokens: 23, total_tokens: 277 }
        * }
        */
-      const response = completion.data;
+      const response = completion;
       let tokens = 0;
-      let text = "";
+      let text: string | null = "";
       if (response.usage) {
         tokens = response.usage.total_tokens;
       }
@@ -146,85 +146,30 @@ export class LLM {
       // streaming responses
       let first = true;
       try {
-        let response = "";
-        const messages = queries;
         chatArgs["stream"] = true;
-        const res = await this.openai.createChatCompletion(chatArgs, {
-          responseType: "stream",
-        });
-        // tell typescript to ignore no 'on'
-        // @ts-ignore
-        res.data.on("data", (data: any) => {
-          const lines = data
-            .toString()
-            .split("\n")
-            .filter((line: string) => line.trim() !== "");
-          for (const line of lines) {
-            const message = line.replace(/^data: /, "");
-            if (message === "[DONE]") {
-              let tokens = 0;
-              process.stdout.write(chalk.green("\n"));
-              if (res.data.usage) {
-                tokens = res.data.usage.total_tokens;
-              } else {
-                tokens = 0; // to indicate that we don't know the number of tokens
-              }
-              resolve({ text: response, tokens: tokens });
-              return; // Stream finished
-            }
-            try {
-              const parsed = JSON.parse(message);
-              let text = parsed.choices[0].delta.content;
-              if (text) {
-                if (spinner) {
-                  spinner.stop(); // starting to see a response, so stop the spinner
-                  spinner = null;
-                }
-                if (first && text.match(/^\s*$/)) {
-                  // ignore the first empty line
-                } else {
-                  // convert multiple newlines to a single newline
-                  text = text.replace(/\n+/g, "\n");
-                  process.stdout.write(chalk.green(text));
-                  response += text;
-                }
-                first = false;
-              }
-            } catch (error) {
-              console.error(
-                "Could not JSON parse stream message",
-                message,
-                error
-              );
-            }
+        const stream: any = await this.openai.chat.completions.create(chatArgs);
+        let response = "";
+        for await (const part of stream) {
+          if (spinner) {
+            spinner.stop(); // starting to see a response, so stop the spinner
+            spinner = null;
           }
-        });
+          let text = part.choices[0]?.delta?.content || "";
+          if (text) {
+            process.stdout.write(chalk.green(text));
+            response += text;
+          }
+        }
+        process.stdout.write("\n");
+        resolve({ text: response, tokens: 0 });
       } catch (error: any) {
-        if (error.response?.status) {
-          console.error(error.response.status, error.message);
-          error.response.data.on("data", (data: any) => {
-            const message = data.toString();
-            try {
-              const parsed = JSON.parse(message);
-              console.error(
-                "An error occurred during OpenAI request: ",
-                parsed
-              );
-            } catch (error) {
-              console.error(
-                "An error occurred during OpenAI request: ",
-                message
-              );
-            }
-          });
+        if (error.response) {
+          console.error(error.response.status);
+          console.error(error.response.data);
         } else {
-          console.error("An error occurred during OpenAI request", error);
+          console.error(error.message);
         }
-        if (spinner) {
-          spinner.stop(); // starting to see a response, so stop the spinner
-        }
-        resolve({ text: "Error:" + error.message, tokens: 0 });
-        // Intentionally resolve with empty string, rather than reject
+        return { text: "Error:" + error.message, tokens: 0 };
       }
     });
   }
