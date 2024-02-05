@@ -32,7 +32,7 @@
     "commander": "^10.0.0",
     "fs": "^0.0.1-security",
     "gptoken": "^0.0.5",
-    "nodemon": "^2.0.20",
+    "nodemon": "^3.0.3",
     "openai": "^4.20.1",
     "ora": "^6.1.2",
     "os": "^0.1.2",
@@ -48,8 +48,22 @@
     "gish": "dist/index.js"
   },
   "pkg": {
-    "targets": ["node18-win-x64", "node18-macos-x64", "node18-linux-x64"],
-    "options": ["experimental-modules"]
+    "targets": [
+      "node18-win-x64",
+      "node18-macos-x64",
+      "node18-linux-x64"
+    ],
+    "options": [
+      "experimental-modules"
+    ]
   },
-  "Keywords": ["gish", "gpt-3", "openai", "gpt3", "gpt", "CLI", "command-line"]
+  "Keywords": [
+    "gish",
+    "gpt-3",
+    "openai",
+    "gpt3",
+    "gpt",
+    "CLI",
+    "command-line"
+  ]
 }
