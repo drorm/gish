@@ -9,4 +9,4 @@ out+=`git status --untracked-files=no $*`
 out+="-----------------------------"
 
 out+="based on the above provide a commit message"
-git commit -e -m "`echo $out | gpt --no-stats`" $*
+git commit -e -m "`echo $out | gish --no-stats`" $*

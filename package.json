@@ -17,6 +17,7 @@
     "bundle": "npm run build && npm run esb && npm run pkg && ls -l releases/"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "^1.1.23",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^29.5.0",
     "@types/node": "^18.11.17",
@@ -32,8 +33,8 @@
     "commander": "^10.0.0",
     "fs": "^0.0.1-security",
     "gptoken": "^0.0.5",
-    "nodemon": "^2.0.20",
-    "openai": "^4.20.1",
+    "nodemon": "^3.0.3",
+    "openai": "^4.26.0",
     "ora": "^6.1.2",
     "os": "^0.1.2",
     "path": "^0.12.7",
