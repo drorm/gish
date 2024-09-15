@@ -1,6 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
-import { Utils } from "./utils.js";
+import * as fs from 'fs';
+import { Utils } from './utils.js';
 
 /**
  * Handle #import statements.
@@ -11,13 +10,10 @@ import { Utils } from "./utils.js";
  */
 export function importFiles(content: string): [boolean, string, string[]] {
   // Split the content into lines
-  const lines = content.split("\n");
+  const lines = content.split('\n');
 
   // Initialize a new list to store the modified lines
   const modifiedLines: string[] = [];
-
-  let success = true; // Set the success flag to true
-  let text = ""; // Initialize the text variable
 
   // Initialize an array to store the names of the imported files
   const toDiffFiles: string[] = [];
@@ -33,6 +29,8 @@ export function importFiles(content: string): [boolean, string, string[]] {
       // If the line is an #import or #diff statement, extract the file name
       const fname = line.split(/\s+/)[1];
       const filePath = Utils.normalizePath(fname); // Normalize the file path
+      modifiedLines.push(`**File:** ${filePath}`); // Add the file path to the modified lines list
+      modifiedLines.push('```'); // Add an openning  code block delimiter to the modified lines list
       if (diffFile) {
         //If it's a #diff statement
         toDiffFiles.push(filePath); // Append the file name to the files array
@@ -40,17 +38,18 @@ export function importFiles(content: string): [boolean, string, string[]] {
 
       try {
         // Open the file and read its contents
-        const fileContents = fs.readFileSync(filePath, "utf-8");
+        const fileContents = fs.readFileSync(filePath, 'utf-8');
 
         // Add the file contents to the modified lines list
-        modifiedLines.push(...fileContents.split("\n"));
+        modifiedLines.push(...fileContents.split('\n'));
       } catch (e) {
         // If the file can't be opened
         return [false, `#import file ${filePath} was not found`, toDiffFiles];
       }
+      modifiedLines.push('```'); // close the code block delimiter
     } else {
       // Check if the line is a comment
-      if (line.trim().startsWith("#")) {
+      if (line.trim().startsWith('#')) {
         // If it is, ignore the line and continue with the next line
         continue;
       }
@@ -60,5 +59,5 @@ export function importFiles(content: string): [boolean, string, string[]] {
   }
 
   // Return: true -- success, Join the modified lines into a single string and the list of changed files
-  return [true, modifiedLines.join("\n"), toDiffFiles];
+  return [true, modifiedLines.join('\n'), toDiffFiles];
 }

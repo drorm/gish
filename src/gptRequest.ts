@@ -1,17 +1,16 @@
-import * as fs from "fs";
-import { importFiles } from "./importFiles.js";
-import { exec } from "child_process";
-import chalk from "chalk";
-import ora from "ora"; // spinner
-import { countTokens } from "gptoken";
-import { spawn } from "child_process";
-import * as tty from "node:tty";
+import * as fs from 'fs';
+import { importFiles } from './importFiles.js';
+import chalk from 'chalk';
+import ora from 'ora'; // spinner
+import { countTokens } from 'gptoken';
+import { spawn } from 'child_process';
+import * as tty from 'node:tty';
 
-import { saveFiles } from "./saveFiles.js";
-import { Settings } from "./settings.js";
-import { LLM, message, GptResult } from "./LLM.js";
-import { LogFile } from "./logFile.js";
-import { generateFiles } from "./generateFiles.js";
+import { saveFiles } from './saveFiles.js';
+import { Settings } from './settings.js';
+import { LLM, message, GptResult } from './LLM.js';
+import { LogFile } from './logFile.js';
+import { generateFiles } from './generateFiles.js';
 
 const gpt = new LLM();
 
@@ -44,19 +43,19 @@ export class GptRequest {
       useSpinner = false;
     }
     this.options = options;
-    let request = "";
+    let request = '';
     // input file name
-    if (type == "input") {
+    if (type == 'input') {
       if (args.length < 2) {
-        this.error("Need input file name in input command");
+        this.error('Need input file name in input command');
         return;
       }
       const inputFile = args[1];
-      request = fs.readFileSync(inputFile, "utf8");
+      request = fs.readFileSync(inputFile, 'utf8');
     } else {
       // ask
       args.shift();
-      request = args.join(" ");
+      request = args.join(' ');
     }
 
     const [success, text, diffFiles] = importFiles(request);
@@ -64,16 +63,16 @@ export class GptRequest {
       this.error(text);
       return;
     }
-    if (options["dryrun"]) {
-      if (options["prompt"]) {
+    if (options['dryrun']) {
+      if (options['prompt']) {
         console.log(
-          chalk.green("------------------ Prompt ------------------")
+          chalk.green('------------------ Prompt ------------------')
         );
-        const prompt = options["prompt"];
-        const promptContent = fs.readFileSync(prompt, "utf8");
+        const prompt = options['prompt'];
+        const promptContent = fs.readFileSync(prompt, 'utf8');
         console.log(chalk.green(promptContent));
         console.log(
-          chalk.green("------------------ End prompt ------------------")
+          chalk.green('------------------ End prompt ------------------')
         );
       }
       console.log(chalk.green(text));
@@ -83,7 +82,7 @@ export class GptRequest {
     }
 
     const response = await this.fetch(text, useSpinner);
-    if (type == "input" || this.options.save) {
+    if (type == 'input' || this.options.save) {
       let diffFile = this.options.diff;
       if (!diffFile && diffFiles.length > 0) {
         diffFile = diffFiles[0];
@@ -91,9 +90,9 @@ export class GptRequest {
       const newFile = saveFiles(response, diffFile, this.options.save);
 
       if (diffFile && newFile) {
-        const diffCommand = Settings.getSetting("DIFF_COMMAND");
-        const editProcess = spawn(diffCommand, [newFile, diffFile], {
-          stdio: "inherit",
+        const diffCommand = Settings.getSetting('DIFF_COMMAND');
+        spawn(diffCommand, [newFile, diffFile], {
+          stdio: 'inherit',
         });
       }
     }
@@ -107,22 +106,22 @@ export class GptRequest {
    * @method fetch
    * @description This method is used to fetch the response from GPT-3
    * It also logs the response to a JSON file
-   * @param {string} request - This is the request that is sent to GPT-3
-   * @returns {string} - This is the response from GPT-3
+   * @param request - This is the request that is sent to GPT-3
+   * @returns request - This is the response from GPT-3
    */
   async fetch(request: string, useSpinner: boolean) {
     let spinner = null;
     const stream = this.options.stream;
     let messages: Array<message> = [];
     if (useSpinner) {
-      spinner = ora("Waiting for GPT").start();
+      spinner = ora('Waiting for GPT').start();
     }
     const start = new Date().getTime();
     // Checking if chat option is set
     if (this.options.chat) {
       messages = this.logFile.getPreviousRequest(this.options.chat);
     }
-    messages.push({ role: "user", content: request });
+    messages.push({ role: 'user', content: request });
     const gptResult = (await gpt.fetch(
       messages,
       this.options,
@@ -134,9 +133,9 @@ export class GptRequest {
       tokens = countTokens(request + gptResult.text);
     }
 
-    let cost = "Cost only available for GPT-3.5-turbo";
-    if (!this.options.model || this.options.model === "gpt-3.5-turbo") {
-      cost = "$" + (tokens * Settings.getSetting("TOKEN_COST")).toFixed(5);
+    let cost = 'Cost only available for GPT-3.5-turbo';
+    if (!this.options.model || this.options.model === 'gpt-3.5-turbo') {
+      cost = '$' + (tokens * Settings.getSetting('TOKEN_COST')).toFixed(5);
     }
     let response = gptResult.text;
     const currentTimestamp = new Date().toLocaleString();
@@ -150,7 +149,7 @@ export class GptRequest {
     }
 
     if (this.options.stats) {
-      let stats = "";
+      let stats = '';
       if (tokens > 0) {
         stats = `Tokens: ${tokens} Cost: ${cost} Elapsed: ${duration} Seconds`;
       } else {
@@ -158,12 +157,12 @@ export class GptRequest {
       }
       if (stream) {
         // Currently we get an estimate when streaming
-        stats += ". Tokens and cost are estimates when streaming.";
+        stats += '. Tokens and cost are estimates when streaming.';
       }
       console.log(chalk.blue(stats));
     }
 
-    messages.push({ role: "assistant", content: response });
+    messages.push({ role: 'assistant', content: response });
     const jsonLog = {
       messages: messages,
       time: currentTimestamp,
